@@ -1,0 +1,86 @@
+[
+  {
+    "firstName": "Emily",
+    "lastName": "Smith",
+    "username": "emilysmith",
+    "email": "emily@gmail.com",
+    "password": "emily@123Smith"
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Wilson",
+    "username": "wilsarah",
+    "email": "wil@gmail.com",
+    "password": "sarah123"
+  },
+  {
+    "firstName": "Jacob",
+    "lastName": "Mitchell",
+    "username": "jacobmitch",
+    "email": "jacob@gmail.com",
+    "password": "jacob123"
+  },
+  {
+    "firstName": "Aditya",
+    "lastName": "Joshi",
+    "username": "adityaj",
+    "email": "aditya@gmail.com",
+    "password": "aditya123"
+  },
+  {
+    "firstName": "Rohan",
+    "lastName": "Roy",
+    "username": "rohaaan",
+    "email": "rohan@gmail.com",
+    "password": "rohan123"
+  },
+  {
+    "firstName": "Kriti",
+    "lastName": "Desai",
+    "username": "imkriti",
+    "email": "kriti@gmail.com",
+    "password": "kriti123"
+  },
+  {
+    "firstName": "Olivia",
+    "lastName": "Parker",
+    "username": "livparker",
+    "email": "oliv@gmail.com",
+    "password": "olivia@123"
+  },
+  {
+    "firstName": "James",
+    "lastName": "Murphy",
+    "username": "jamesmurf",
+    "email": "jam@gmail.com",
+    "password": "james@456"
+  },
+  {
+    "firstName": "James",
+    "lastName": "Murphy",
+    "username": "jamesmurf",
+    "email": "jam@gmail.com",
+    "password": "james@456"
+  },
+  {
+    "firstName": "Ava",
+    "lastName": "Turner",
+    "username": "avaturn",
+    "email": "a@gmail.com",
+    "password": "ava@239"
+  },
+  {
+    "firstName": "Aryan",
+    "lastName": "Patel",
+    "username": "aryan987",
+    "email": "ary@gmail.com",
+    "password": "aryan@231"
+  },
+  {
+    "firstName": "Swastik",
+    "lastName": "Patro",
+    "username": "swastik2001",
+    "email": "swastik.patro2001@gmail.com",
+    "password": "patro@2001"
+  }
+]
