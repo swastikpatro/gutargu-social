@@ -18,24 +18,48 @@ import {
   MenuList,
   Spacer,
   Text,
+  Container,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { BsBookmark, BsThreeDotsVertical, BsHeart } from 'react-icons/bs';
+import {
+  BsBookmark,
+  BsThreeDotsVertical,
+  BsHeart,
+  BsFillHeartFill,
+  BsFillBookmarkFill,
+} from 'react-icons/bs';
 import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
+import { getCreatedDate } from '../utils/utils';
+import { useAppSelector } from '../store/store-hooks';
 
-const PostCard = ({ postData }) => {
+const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
+  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+
+  const {
+    _id,
+    likes: { likeCount },
+    author: { _id: authorId, firstName, lastName, username, pic },
+    content,
+    imageUrl,
+    createdAt,
+    isLikedByMainUser,
+  } = postData;
+
+  const isPostByMainUser = mainUserId === authorId;
+
   const handleCopyToClipboard = () => {
+    // navigator.clipboard.writeText()
     console.log('copy');
   };
 
   return (
-    <Card boxShadow='md' cursor='default' w='full'>
+    <Card boxShadow='md' cursor='default'>
       <CardHeader as='header' pb={{ base: '.5rem', md: '1rem' }}>
         <Flex>
           <ChakraLink
             as={Link}
-            to={`/profile/${123}`}
+            to={`/profile/${authorId}`}
             _hover={{
               textDecoration: 'none',
             }}
@@ -46,24 +70,31 @@ const PostCard = ({ postData }) => {
               flexWrap='wrap'
             >
               <Avatar
-                size={{ base: 'sm', md: 'md' }}
-                name='Segun Adebayo'
-                src='https://bit.ly/sage-adebayo'
+                size={{ base: 'md', md: 'lg' }}
+                name={firstName}
+                src={pic}
               />
 
               <Box>
-                <Heading
-                  size={{ base: 'xs', md: 'md' }}
-                  mb={{ base: '.15rem', md: '.25rem' }}
-                >
-                  Segun Adebayo
+                <Heading size={{ base: 'xs', md: 'md' }}>
+                  {firstName} {lastName}
                 </Heading>
 
                 <Text
                   fontSize={{ base: '.75rem', md: '.9rem' }}
-                  letterSpacing='wider'
+                  letterSpacing='widest'
+                  fontStyle={'italic'}
                 >
-                  Apr 06 2022
+                  @{username}
+                </Text>
+
+                <Text
+                  fontSize={{ base: '.7rem', md: '.8rem' }}
+                  letterSpacing='wider'
+                  color={'gray'}
+                  fontWeight={'semibold'}
+                >
+                  {getCreatedDate(createdAt)}
                 </Text>
               </Box>
             </Flex>
@@ -71,53 +102,67 @@ const PostCard = ({ postData }) => {
 
           <Spacer />
 
-          <Menu>
-            <MenuButton
-              variant='ghost'
-              colorScheme='gray'
-              borderRadius='50%'
-              aria-label='Options'
-              as={IconButton}
-              icon={<BsThreeDotsVertical />}
-            />
-            <MenuList minW='10rem' p='0' boxShadow='xl'>
-              <MenuItem as={Button} borderRadius='none'>
-                Edit
-              </MenuItem>
-              <MenuItem as={Button} borderRadius='none'>
-                Delete
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          {isPostByMainUser && (
+            <Menu>
+              <MenuButton
+                variant='ghost'
+                colorScheme='gray'
+                borderRadius='50%'
+                aria-label='Options'
+                as={IconButton}
+                icon={<BsThreeDotsVertical />}
+              />
+              <MenuList minW='10rem' p='0' boxShadow='xl'>
+                <MenuItem as={Button} borderRadius='none'>
+                  Edit
+                </MenuItem>
+                <MenuItem as={Button} borderRadius='none'>
+                  Delete
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          )}
         </Flex>
       </CardHeader>
 
       <CardBody pt='0' as='main'>
         <ChakraLink
           as={Link}
-          to={`/post/${123}`}
+          to={`/post/${_id}`}
           _hover={{ textDecoration: 'none' }}
         >
-          <Text fontSize={{ base: '.85rem', md: '1.1rem' }}>
-            With Chakra UI, I wanted to sync the speed of development with the
-            speed of design. I wanted the developer to be just as excited as the
-            designer to create a screen 😂.
+          <Text
+            letterSpacing={{ base: 'mormal', md: 'wide' }}
+            fontSize={{ base: '.9rem', md: '1.1rem' }}
+          >
+            {content}
           </Text>
         </ChakraLink>
       </CardBody>
 
-      <Image
-        objectFit='cover'
-        src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
-        alt='Chakra UI'
-      />
+      {!!imageUrl && !imageUrl.includes('.mp4') && (
+        <Container w='full' minH='20rem' h='fit-content' pb='.5rem'>
+          <Image
+            borderRadius='md'
+            objectFit='cover'
+            w='full'
+            h='full'
+            bg={'#fff'}
+            src={imageUrl}
+            alt='post image'
+          />
+        </Container>
+      )}
+
+      {imageUrl.includes('.mp4') && <video controls src={imageUrl} />}
 
       <CardFooter
-        py={{ base: '.5rem', md: '1rem' }}
+        py={{ base: '.5rem' }}
         as='footer'
         display='flex'
         alignItems='center'
         gap={{ base: '.75rem', md: '.95rem' }}
+        borderTop={'1px solid gray'}
       >
         <Box
           display='flex'
@@ -132,14 +177,15 @@ const PostCard = ({ postData }) => {
             bg='transparent'
             fontSize={{ base: '1rem', md: '1.25rem' }}
             w='2rem'
+            color={isLikedByMainUser ? 'red' : 'inherit'}
           >
-            <Icon as={BsHeart} />
+            <Icon as={isLikedByMainUser ? BsFillHeartFill : BsHeart} />
           </IconButton>
 
-          <Text>1</Text>
+          {likeCount > 0 && <Text>{likeCount}</Text>}
         </Box>
 
-        <Box
+        {/* <Box
           display='flex'
           alignItems='center'
           gap={{ base: '0', md: '.1rem' }}
@@ -157,7 +203,7 @@ const PostCard = ({ postData }) => {
           </IconButton>
 
           <Text>3</Text>
-        </Box>
+        </Box> */}
 
         <IconButton
           variant='ghost'
@@ -167,8 +213,9 @@ const PostCard = ({ postData }) => {
           bg='transparent'
           fontSize={{ base: '1rem', md: '1.25rem' }}
           w='2rem'
+          color={isBookmarkedByMainUser ? 'green' : 'inherit'}
         >
-          <Icon as={BsBookmark} />
+          <Icon as={isBookmarkedByMainUser ? BsFillBookmarkFill : BsBookmark} />
         </IconButton>
 
         <Spacer />

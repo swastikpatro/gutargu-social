@@ -25,9 +25,11 @@ import PasswordInput from './PasswordInput';
 
 const SignupCard = () => {
   const location = useLocation();
-  const tokenFromSlice = useAppSelector((store) => store.auth.token);
+  const { token: tokenFromSlice, isLoggedOut } = useAppSelector(
+    (store) => store.auth
+  );
 
-  useNavigateIfRegistered(tokenFromSlice);
+  useNavigateIfRegistered({ token: tokenFromSlice, isLoggedOut });
 
   const dispatch = useAppDispatch();
 
@@ -93,7 +95,7 @@ const SignupCard = () => {
     setIsSignupFormLoading(true);
 
     try {
-      const response = await fetch(`${URL}/api/auth/register`, {
+      const response = await fetch(`${URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

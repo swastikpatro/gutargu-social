@@ -1,14 +1,22 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { FollowerSidebar, Navbar, Sidebar } from '../components';
+import { FollowerSidebar, Navbar, PageLoader, Sidebar } from '../components';
 import { Box, Container, useColorModeValue } from '@chakra-ui/react';
 import { sectionCenterStyles } from '../styles/GlobalStyles';
 import { useEffect } from 'react';
+import { useAppSelector } from '../store/store-hooks';
 
 const SharedLayout = () => {
   const location = useLocation();
+
+  const colorMode = {
+    bgSidebar: useColorModeValue('#fff', 'gray.800'),
+    bgFollowerSidebar: useColorModeValue('#fff', 'gray.800'),
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+
   return (
     <>
       <Navbar />
@@ -29,7 +37,7 @@ const SharedLayout = () => {
           w={{ base: '100vw', md: '80px', lg: '80px', xl: '250px' }}
           h={{ base: '4rem', md: 'calc(100vh - 6rem)' }}
           // border='2px solid red'
-          bg={useColorModeValue('#fff', 'gray.800')}
+          bg={colorMode.bgSidebar}
           zIndex={11}
         >
           <Sidebar />
@@ -37,8 +45,8 @@ const SharedLayout = () => {
 
         <Box
           minH='calc(100vh - 5rem)'
-          p='1rem'
-          pb={{ base: '4rem' }}
+          pt='1rem'
+          pb={{ base: '5rem', md: '3rem' }}
           as='section'
           borderRight={{ lg: '2px solid #a9a9a9' }}
           borderLeft={{ md: '2px solid #a9a9a9' }}
@@ -51,7 +59,7 @@ const SharedLayout = () => {
           top='5rem'
           h='calc(100vh - 5rem)'
           display={{ base: 'none', lg: 'block' }}
-          bg={useColorModeValue('#fff', 'gray.800')}
+          bg={colorMode.bgFollowerSidebar}
           p='.5rem 1.5rem'
         >
           <FollowerSidebar />

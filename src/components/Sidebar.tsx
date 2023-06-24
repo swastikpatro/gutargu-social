@@ -19,6 +19,7 @@ import { RiHome7Fill } from 'react-icons/ri';
 import { IoBookmarkSharp } from 'react-icons/io5';
 import { AiFillHeart, AiOutlinePlus } from 'react-icons/ai';
 import PostModal from './PostModal';
+import { ProfileLink } from '.';
 
 const sidebarLinks = [
   {
@@ -78,7 +79,6 @@ const Sidebar = () => {
           }}
           letterSpacing='widest'
           borderRadius='full'
-          transition='all .3s linear'
           order={{ base: order, md: 0 }}
           _activeLink={{
             transition: 'none',
@@ -93,11 +93,9 @@ const Sidebar = () => {
             minW={{ xl: '11rem' }}
             p={{ md: '.5rem', xl: '.75rem 1rem' }}
           >
-            <Tooltip hasArrow label={text} bg='gray.500' color='#fff'>
-              <Box fontSize={{ base: '1.75rem', md: '1.5rem' }} as='span'>
-                {icon}
-              </Box>
-            </Tooltip>
+            <Box fontSize={{ base: '1.75rem', md: '1.5rem' }} as='span'>
+              {icon}
+            </Box>
 
             <Text fontSize='1.25rem' hideBelow='xl'>
               {text}
@@ -140,33 +138,7 @@ const Sidebar = () => {
 
       <Spacer hideBelow='md' />
 
-      <ChakraLink
-        as={Link}
-        to='/profile/123'
-        display={{ xl: 'flex' }}
-        p={{ xl: '.35rem .25rem' }}
-        w={{ xl: '90%' }}
-        order={3}
-        bg={useColorModeValue('gray.200', 'gray.700')}
-        borderRadius='2.5rem'
-        gap={{ xl: '0 .75rem' }}
-        _hover={{
-          textDecoration: 'none',
-        }}
-      >
-        <Avatar
-          size={{ base: 'sm', md: 'md' }}
-          name='Ryan Florence'
-          src='https://bit.ly/ryan-florence'
-        />
-        <Box h='full' as='div' hideBelow='xl'>
-          <Text fontWeight='semibold' as='h3'>
-            Swastik Patro
-          </Text>
-
-          <Text fontSize='1rem'>@swastikpatro</Text>
-        </Box>
-      </ChakraLink>
+      <ProfileLink />
     </List>
   );
 };

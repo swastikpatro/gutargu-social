@@ -12,12 +12,6 @@ import {
   SinglePostPage,
 } from './pages';
 import { ProtectedRoute } from './components';
-import jwt_decode from 'jwt-decode';
-const { email, _id } = jwt_decode(
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndpbEBnbWFpbC5jb20iLCJfaWQiOiI2NDkxOWIxNTc4YWFkOTk4OTI1OGYxOGEiLCJpYXQiOjE2ODczMzIwMDcsImV4cCI6MTY4NzU5MTIwN30.p8cIgAj6DU1mbZv7bsWavaiL5JrtoCwBFUK6d_MvaUg'
-);
-
-console.log({ email, _id });
 
 const App = () => {
   return (

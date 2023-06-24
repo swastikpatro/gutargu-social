@@ -19,4 +19,4 @@ export const TEST_USER = {
   password: 'patro@2001',
 };
 
-export const URL = 'https://gutargu-backend.vercel.app';
+export const URL = 'https://gutargu-backend.vercel.app/api';
