@@ -2,22 +2,33 @@ import {
   Avatar,
   Box,
   Button,
+  Center,
   Container,
   Heading,
   Icon,
   Spacer,
+  Spinner,
   Text,
   useDisclosure,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
-import { PostCard, PostModal } from '../components';
+import { PostCard, PostModal, PostsContainer } from '../components';
 import { MdAddCircle } from 'react-icons/md';
 import { useState } from 'react';
 import { FaFire } from 'react-icons/fa';
+import { useAppSelector } from '../store/store-hooks';
+import {
+  useGetAllPostsQuery,
+  useGetSingleUserDetailsQuery,
+} from '../store/api';
+import { sortByCreatedDate, sortByLikeCount } from '../utils/utils';
+import { Link } from 'react-router-dom';
 
 const sortTypesAvailable = [
   {
     id: 1,
     sortName: 'Trending',
+    sortFunction: sortByLikeCount,
     leftIcon: (
       <svg
         stroke='currentColor'
@@ -34,14 +45,80 @@ const sortTypesAvailable = [
       </svg>
     ),
   },
-  { id: 2, sortName: 'Latest', leftIcon: <FaFire /> },
+  {
+    id: 2,
+    sortName: 'Latest',
+    sortFunction: sortByCreatedDate,
+    leftIcon: <FaFire />,
+  },
 ];
 
 const HomePage = () => {
+  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+
+  const { data: allPosts, isLoading: isAllPostsLoading } =
+    useGetAllPostsQuery(mainUserId);
+
+  const { data: mainUserDetails, isLoading: isMainUserLoading } =
+    useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+
   const { onOpen, isOpen, onClose } = useDisclosure();
-  const [activeSortType, setActiveSortType] = useState(
-    sortTypesAvailable[0].sortName
+  const [activeSortType, setActiveSortType] = useState(sortTypesAvailable[0]);
+
+  const headingText = 'Home';
+
+  if (isAllPostsLoading || isMainUserLoading) {
+    return (
+      <PostsContainer headingText={headingText}>
+        <Center>
+          <Spinner />
+        </Center>
+      </PostsContainer>
+    );
+  }
+
+  const postsOfUserAndFollowing = allPosts.filter(
+    ({ isMainUserFollowing, author: { _id: authorId } }) =>
+      isMainUserFollowing || authorId === mainUserId
   );
+
+  const sortedPosts = [...postsOfUserAndFollowing].sort(
+    activeSortType.sortFunction
+  );
+
+  if (sortedPosts.length < 1) {
+    return (
+      <PostsContainer headingText={headingText}>
+        <Center>
+          <Text
+            color={'red.400'}
+            fontSize={{ base: '1rem', md: '1.1rem' }}
+            fontWeight={'bold'}
+            letterSpacing={'wider'}
+          >
+            No Posts to Display! Start Following Others or Post something to get
+            updates on your Feed.
+          </Text>
+        </Center>
+
+        <Center>
+          <ChakraLink
+            bg={'blue.400'}
+            color={'#fff'}
+            display={'block'}
+            as={Link}
+            to='/explore'
+            _hover={{ textDecoration: 'none', bg: 'blue.500' }}
+            padding={'.35rem 1rem'}
+            borderRadius={'full'}
+            letterSpacing={'widest'}
+          >
+            Explore
+          </ChakraLink>
+        </Center>
+      </PostsContainer>
+    );
+  }
 
   return (
     <Box as='main' maxW='full'>
@@ -53,7 +130,7 @@ const HomePage = () => {
         p='.75rem'
         borderBottom='1px solid gray'
       >
-        Home
+        {headingText}
       </Heading>
 
       <Container
@@ -62,15 +139,15 @@ const HomePage = () => {
         p='1rem 0'
         display='flex'
       >
-        {sortTypesAvailable.map(({ id, sortName, leftIcon }) => (
+        {sortTypesAvailable.map(({ id, sortName, leftIcon }, index) => (
           <Button
-            color={sortName === activeSortType ? '#ff4261' : 'inherit'}
+            color={sortName === activeSortType.sortName ? '#ff4261' : 'inherit'}
             key={id}
             borderRadius='none'
             w='full'
             leftIcon={leftIcon}
             fontSize={{ base: '.85rem', md: '1.15rem' }}
-            onClick={() => setActiveSortType(sortName)}
+            onClick={() => setActiveSortType(sortTypesAvailable[index])}
             letterSpacing='wider'
             p='1.5rem'
           >
@@ -82,7 +159,6 @@ const HomePage = () => {
       <PostModal isOpen={isOpen} onClose={onClose} />
 
       <Button
-        // display='none'
         onClick={onOpen}
         colorScheme='gray'
         display='flex'
@@ -93,15 +169,14 @@ const HomePage = () => {
         ml='auto'
         borderRadius='full'
         boxShadow='md'
-        // border='2px solid red'
         _hover={{
           boxShadow: 'lg',
         }}
       >
         <Avatar
           size={{ base: 'sm', md: 'md' }}
-          name='Segun Adebayo'
-          src='https://bit.ly/sage-adebayo'
+          name={`${mainUserDetails.firstName} ${mainUserDetails.lastName}`}
+          src={mainUserDetails.pic}
         />
 
         <Text
@@ -109,7 +184,7 @@ const HomePage = () => {
           letterSpacing={{ base: 'normal', md: 'wider' }}
           color='gray'
         >
-          What's on your mind, Swastik
+          What's on your mind, {mainUserDetails.firstName}
         </Text>
         <Spacer />
 
@@ -123,8 +198,14 @@ const HomePage = () => {
         py={{ base: '1rem', md: '2rem' }}
         px='0'
       >
-        {new Array(10).fill(null).map((singlePost, index) => (
-          <PostCard key={index} postData={singlePost} />
+        {sortedPosts.map((singlePost) => (
+          <PostCard
+            key={singlePost._id}
+            postData={singlePost}
+            isBookmarkedByMainUser={
+              mainUserDetails.bookmarkedPostIds[singlePost._id] || false
+            }
+          />
         ))}
       </Container>
     </Box>

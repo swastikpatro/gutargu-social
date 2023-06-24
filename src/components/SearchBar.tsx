@@ -10,10 +10,14 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { ChangeEvent, useRef, useState } from 'react';
+import { useGetAllUsersQuery } from '../store/api';
+import { useAppSelector } from '../store/store-hooks';
 
 const SearchBar = () => {
   const [searchText, setSearchText] = useState<string>('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const { data: allUsers, isLoading } = useGetAllUsersQuery(mainUserId);
+  // const [filteredUsers, setFilteredUsers] = useState([]);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 

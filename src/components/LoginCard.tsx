@@ -29,9 +29,16 @@ import PageLoader from './PageLoader';
 
 const LoginCard = () => {
   const location = useLocation();
-  const tokenFromSlice = useAppSelector((store) => store.auth.token);
+  const colorModeValue = {
+    bgColor: useColorModeValue('gray.50', 'gray.800'),
+    cardBgColor: useColorModeValue('white', 'gray.700'),
+  };
 
-  useNavigateIfRegistered(tokenFromSlice);
+  const { token: tokenFromSlice, isLoggedOut } = useAppSelector(
+    (store) => store.auth
+  );
+
+  useNavigateIfRegistered({ token: tokenFromSlice, isLoggedOut });
 
   const dispatch = useAppDispatch();
 
@@ -44,11 +51,6 @@ const LoginCard = () => {
   const [inputs, setInputs] = useState(initialLoginState);
 
   const toast = useToast();
-
-  const colorModeValue = {
-    bgColor: useColorModeValue('gray.50', 'gray.800'),
-    cardBgColor: useColorModeValue('white', 'gray.700'),
-  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
