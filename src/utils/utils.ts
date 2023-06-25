@@ -63,6 +63,27 @@ export const isFoundInList = ({ list = [], idToBeChecked }) => {
 export const isIncludedInList = ({ list = [], idToBeChecked }) =>
   list.includes(idToBeChecked);
 
+const lowerizedAndIsStartsWith = ({ text, textSearched }) => {
+  return text.toLowerCase().startsWith(textSearched.toLowerCase());
+};
+
+export const filterOnFirstLastAndUserName = ({ list, trimmedSearchText }) =>
+  list.filter(
+    ({ username, lastName, firstName }) =>
+      lowerizedAndIsStartsWith({
+        text: username,
+        textSearched: trimmedSearchText,
+      }) ||
+      lowerizedAndIsStartsWith({
+        text: firstName,
+        textSearched: trimmedSearchText,
+      }) ||
+      lowerizedAndIsStartsWith({
+        text: lastName,
+        textSearched: trimmedSearchText,
+      })
+  );
+
 // export const setIntoLocalStorage = (name : string, dataObj) => {
 //   localStorage.setItem(name, JSON.stringify(dataObj));
 // };
