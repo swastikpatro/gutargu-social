@@ -1,15 +1,14 @@
 import {
-  Avatar,
   Box,
   Center,
   Link as ChakraLink,
   Spinner,
-  Text,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import { useGetSingleUserDetailsQuery } from '../store/api';
 import { useAppSelector } from '../store/store-hooks';
+import UserHeader from './UserHeader';
 
 const ProfileLink = () => {
   const linkBg = useColorModeValue('gray.200', 'gray.700');
@@ -35,13 +34,6 @@ const ProfileLink = () => {
     );
   }
 
-  console.log(error);
-
-  const { firstName, lastName, pic, username, _id } = mainUser;
-  const nameOfUser = `${firstName} ${lastName}`;
-
-  // console.log({ mainUser });
-
   return (
     <Box
       as='div'
@@ -53,32 +45,17 @@ const ProfileLink = () => {
     >
       <ChakraLink
         as={NavLink}
-        to={`/profile/${_id}`}
+        to={`/profile/${mainUser._id}`}
         display={{ xl: 'flex' }}
         gap={{ xl: '0 .75rem' }}
         _hover={{
           textDecoration: 'none',
         }}
         _activeLink={{
-          // fontWeight: 'bold',
           color: 'blue.400',
         }}
       >
-        <Avatar
-          size={{ base: 'sm', md: 'md' }}
-          name={nameOfUser}
-          src={pic}
-          color='#fff'
-        />
-        <Box h='full' as='div' hideBelow='xl'>
-          <Text fontWeight='semibold' as='h3'>
-            {nameOfUser}
-          </Text>
-
-          <Text fontSize='1rem' fontStyle={'italic'} letterSpacing={'normal'}>
-            @{username}
-          </Text>
-        </Box>
+        <UserHeader user={mainUser} />
       </ChakraLink>
     </Box>
   );
