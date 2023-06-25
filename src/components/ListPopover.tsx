@@ -1,0 +1,72 @@
+import {
+  Box,
+  Flex,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+  Link as ChakraLink,
+} from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
+import UserHeader from './UserHeader';
+
+const ListPopover = ({ usersList, type }) => {
+  return (
+    <Popover isLazy>
+      <PopoverTrigger>
+        <Text
+          letterSpacing='wider'
+          color='blue.500'
+          fontWeight='semibold'
+          cursor={'pointer'}
+          textDecoration={'underline'}
+        >
+          {usersList.length} {type}
+        </Text>
+      </PopoverTrigger>
+
+      <PopoverContent w='fit-content'>
+        <PopoverArrow />
+
+        <PopoverBody p={0}>
+          <Flex
+            flexDir='column'
+            p={5}
+            pb='.5rem'
+            minH='4rem'
+            maxH='15rem'
+            overflow={'auto'}
+          >
+            {usersList.length > 0 ? (
+              usersList.map((user) => (
+                <Box as='article' key={user._id} mb={'1rem'}>
+                  <ChakraLink
+                    as={Link}
+                    to={`/profile/${user._id}`}
+                    _hover={{ textDecoration: 'none' }}
+                  >
+                    <UserHeader user={user} />
+                  </ChakraLink>
+                </Box>
+              ))
+            ) : (
+              <Text
+                letterSpacing={'wider'}
+                textAlign='center'
+                fontSize='0.9rem'
+                color={'red.400'}
+                fontWeight={'semibold'}
+              >
+                No {type} Yet
+              </Text>
+            )}
+          </Flex>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export default ListPopover;
