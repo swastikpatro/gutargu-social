@@ -1,17 +1,17 @@
 import {
-  Avatar,
   Box,
   Button,
   Center,
   Heading,
   Spacer,
   Spinner,
-  Text,
+  Link as ChakraLink,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../store/store-hooks';
 import { useGetAllUsersQuery } from '../store/api';
+import UserHeader from './UserHeader';
 
 const FollowerSidebar = () => {
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
@@ -57,50 +57,35 @@ const FollowerSidebar = () => {
             <Spinner />
           </Center>
         ) : (
-          suggestedUnFollowedUsers.map(
-            ({ _id: userId, firstName, lastName, username, pic }) => (
-              <Box
-                key={userId}
-                as='article'
-                display='flex'
-                gap='.5rem'
-                mb='1rem'
-                alignItems='center'
+          suggestedUnFollowedUsers.map((user) => (
+            <Box
+              key={user._id}
+              as='article'
+              display='flex'
+              gap='.5rem'
+              alignItems='center'
+              mb={'1rem'}
+            >
+              <ChakraLink
+                as={Link}
+                to={`/profile/${user._id}`}
+                _hover={{ textDecoration: 'none' }}
               >
-                <Avatar
-                  size={{ base: 'sm', md: 'md' }}
-                  name={`${firstName} ${lastName}`}
-                  src={pic}
-                  as={Link}
-                  to={`/profile/${userId}`}
-                  cursor='pointer'
-                />
-                <Box as={Link} to={`/profile/${userId}`} cursor='pointer'>
-                  <Text fontWeight='semibold'>
-                    {firstName} {lastName}
-                  </Text>
-                  <Text
-                    fontSize={{ base: '.75rem', md: '.9rem' }}
-                    letterSpacing='widest'
-                    fontStyle={'italic'}
-                  >
-                    @{username}
-                  </Text>
-                </Box>
+                <UserHeader user={user} />
+              </ChakraLink>
 
-                <Spacer />
+              <Spacer />
 
-                <Button
-                  {...followButtonStyle}
-                  borderRadius='full'
-                  letterSpacing='wider'
-                  // isLoading
-                >
-                  Follow
-                </Button>
-              </Box>
-            )
-          )
+              <Button
+                {...followButtonStyle}
+                borderRadius='full'
+                letterSpacing='wider'
+                // isLoading
+              >
+                Follow
+              </Button>
+            </Box>
+          ))
         )}
       </Box>
     </Box>

@@ -86,9 +86,56 @@ const HomePage = () => {
     activeSortType.sortFunction
   );
 
+  const NewPostJSX = (
+    <Button
+      onClick={onOpen}
+      colorScheme='gray'
+      display='flex'
+      gap={{ base: '0 .25rem', md: '0 .75rem' }}
+      mt={{ base: '1rem', md: '2rem' }}
+      p={{ base: '1.5rem .5rem', md: '2.5rem 1.5rem' }}
+      mr='auto'
+      ml='auto'
+      borderRadius='full'
+      boxShadow='md'
+      _hover={{
+        boxShadow: 'lg',
+      }}
+    >
+      <Avatar
+        size={{ base: 'sm', md: 'md' }}
+        name={`${mainUserDetails.firstName} ${mainUserDetails.lastName}`}
+        src={mainUserDetails.pic}
+      />
+
+      <Text
+        fontSize={{ base: '.85rem', md: '1.1rem' }}
+        letterSpacing={{ base: 'normal', md: 'wider' }}
+        color='gray'
+      >
+        What's on your mind, {mainUserDetails.firstName}
+      </Text>
+      <Spacer />
+
+      <Icon fontSize={{ base: '1rem', md: '1.5rem' }} as={MdAddCircle} />
+    </Button>
+  );
+
+  const postModalJSX = (
+    <PostModal
+      isAddingAndMainUserData={mainUserDetails}
+      isOpen={isOpen}
+      onClose={onClose}
+    />
+  );
+
   if (sortedPosts.length < 1) {
     return (
       <PostsContainer headingText={headingText}>
+        {NewPostJSX}
+
+        {isOpen && postModalJSX}
+
         <Center>
           <Text
             color={'red.400'}
@@ -156,40 +203,9 @@ const HomePage = () => {
         ))}
       </Container>
 
-      <PostModal isOpen={isOpen} onClose={onClose} />
+      {isOpen && postModalJSX}
 
-      <Button
-        onClick={onOpen}
-        colorScheme='gray'
-        display='flex'
-        gap={{ base: '0 .25rem', md: '0 .75rem' }}
-        mt={{ base: '1rem', md: '2rem' }}
-        p={{ base: '1.5rem .5rem', md: '2.5rem 1.5rem' }}
-        mr='auto'
-        ml='auto'
-        borderRadius='full'
-        boxShadow='md'
-        _hover={{
-          boxShadow: 'lg',
-        }}
-      >
-        <Avatar
-          size={{ base: 'sm', md: 'md' }}
-          name={`${mainUserDetails.firstName} ${mainUserDetails.lastName}`}
-          src={mainUserDetails.pic}
-        />
-
-        <Text
-          fontSize={{ base: '.85rem', md: '1.1rem' }}
-          letterSpacing={{ base: 'normal', md: 'wider' }}
-          color='gray'
-        >
-          What's on your mind, {mainUserDetails.firstName}
-        </Text>
-        <Spacer />
-
-        <Icon fontSize={{ base: '1rem', md: '1.5rem' }} as={MdAddCircle} />
-      </Button>
+      {NewPostJSX}
 
       <Container
         // display='none'

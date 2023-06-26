@@ -20,3 +20,10 @@ export const TEST_USER = {
 };
 
 export const URL = 'https://gutargu-backend.vercel.app/api';
+
+export const DEBOUNCED_DELAY = 250;
+
+export const MODAL_TEXT_TYPE = {
+  DELETE_POST: 'delete post',
+  LOGOUT: 'logout',
+};

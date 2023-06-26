@@ -11,6 +11,9 @@ interface loginServiceType {
   password: string;
 }
 
+export const wait = (delay: number = 500) =>
+  new Promise((res) => setTimeout(res, delay));
+
 export const showToast = ({ toast, type, message }: showToastType) => {
   toast({
     title: message,
@@ -63,14 +66,23 @@ export const isFoundInList = ({ list = [], idToBeChecked }) => {
 export const isIncludedInList = ({ list = [], idToBeChecked }) =>
   list.includes(idToBeChecked);
 
-// export const setIntoLocalStorage = (name : string, dataObj) => {
-//   localStorage.setItem(name, JSON.stringify(dataObj));
-// };
+const lowerizedAndIsStartsWith = ({ text, textSearched }) => {
+  return text.toLowerCase().startsWith(textSearched.toLowerCase());
+};
 
-// export const getFromLocalStorage = (name: string) => {
-//   return JSON.parse(localStorage.getItem(name)) ?? null;
-// };
-
-// export const removeLocalStorage = (name) => {
-//   localStorage.removeItem(name);
-// };
+export const filterOnFirstLastAndUserName = ({ list, trimmedSearchText }) =>
+  list.filter(
+    ({ username, lastName, firstName }) =>
+      lowerizedAndIsStartsWith({
+        text: username,
+        textSearched: trimmedSearchText,
+      }) ||
+      lowerizedAndIsStartsWith({
+        text: firstName,
+        textSearched: trimmedSearchText,
+      }) ||
+      lowerizedAndIsStartsWith({
+        text: lastName,
+        textSearched: trimmedSearchText,
+      })
+  );

@@ -18,7 +18,7 @@ const ProfileLink = () => {
     data: mainUser,
     isLoading: isMainUserLoading,
     error,
-  } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+  } = useGetSingleUWserDetailsQuery({ mainUserId, id: mainUserId });
 
   if (isMainUserLoading) {
     return (
@@ -35,12 +35,8 @@ const ProfileLink = () => {
     );
   }
 
-  console.log(error);
-
   const { firstName, lastName, pic, username, _id } = mainUser;
   const nameOfUser = `${firstName} ${lastName}`;
-
-  // console.log({ mainUser });
 
   return (
     <Box
@@ -60,7 +56,6 @@ const ProfileLink = () => {
           textDecoration: 'none',
         }}
         _activeLink={{
-          // fontWeight: 'bold',
           color: 'blue.400',
         }}
       >

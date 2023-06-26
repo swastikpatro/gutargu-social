@@ -19,6 +19,7 @@ import {
   Spacer,
   Text,
   Container,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import {
@@ -32,6 +33,9 @@ import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
 import { getCreatedDate } from '../utils/utils';
 import { useAppSelector } from '../store/store-hooks';
+import { PostModal } from '.';
+import ConfirmModal from './ConfirmModal';
+import { MODAL_TEXT_TYPE } from '../constants';
 
 const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
@@ -45,6 +49,18 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
     createdAt,
     isLikedByMainUser,
   } = postData;
+
+  const {
+    isOpen: isPostModalOpen,
+    onOpen: onPostModalOpen,
+    onClose: onPostModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isConfirmModalOpen,
+    onOpen: onConfirmModalOpen,
+    onClose: onConfirmModalClose,
+  } = useDisclosure();
 
   const isPostByMainUser = mainUserId === authorId;
 
@@ -71,7 +87,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             >
               <Avatar
                 size={{ base: 'md', md: 'lg' }}
-                name={firstName}
+                name={`${firstName} ${lastName}`}
                 src={pic}
               />
 
@@ -113,10 +129,18 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
                 icon={<BsThreeDotsVertical />}
               />
               <MenuList minW='10rem' p='0' boxShadow='xl'>
-                <MenuItem as={Button} borderRadius='none'>
+                <MenuItem
+                  onClick={onPostModalOpen}
+                  as={Button}
+                  borderRadius='none'
+                >
                   Edit
                 </MenuItem>
-                <MenuItem as={Button} borderRadius='none'>
+                <MenuItem
+                  onClick={onConfirmModalOpen}
+                  as={Button}
+                  borderRadius='none'
+                >
                   Delete
                 </MenuItem>
               </MenuList>
@@ -126,6 +150,23 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
       </CardHeader>
 
       <CardBody pt='0' as='main'>
+        {isPostModalOpen && (
+          <PostModal
+            isOpen={isPostModalOpen}
+            onClose={onPostModalClose}
+            isEditingAndMainUserData={postData}
+          />
+        )}
+
+        {isConfirmModalOpen && (
+          <ConfirmModal
+            isOpen={isConfirmModalOpen}
+            onClose={onConfirmModalClose}
+            modalText={MODAL_TEXT_TYPE.DELETE_POST}
+            isDeletingPostAndPostId={_id}
+          />
+        )}
+
         <ChakraLink
           as={Link}
           to={`/post/${_id}`}

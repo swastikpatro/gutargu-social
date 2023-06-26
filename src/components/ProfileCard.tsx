@@ -7,35 +7,38 @@ import {
   Spinner,
   Text,
   useColorModeValue,
-  useToast,
   IconButton,
   Icon,
   Badge,
   Link as ChakraLink,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { useAppDispatch, useAppSelector } from '../store/store-hooks';
+import { useAppSelector } from '../store/store-hooks';
 import { useParams, Link } from 'react-router-dom';
 import { useGetSingleUserDetailsQuery } from '../store/api';
-import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
-import { getCreatedDate, showToast } from '../utils/utils';
-import { TOAST_TYPE } from '../constants';
+
+import { getCreatedDate } from '../utils/utils';
+import { MODAL_TEXT_TYPE } from '../constants';
 import { HiOutlineLogout } from 'react-icons/hi';
 import { FaCalendarAlt } from 'react-icons/fa';
+import ListPopover from './ListPopover';
+import ConfirmModal from './ConfirmModal';
 
 const ProfileCard = () => {
-  const bgColor = useColorModeValue('gray.800', 'gray.100');
-  const textColor = useColorModeValue('#fff', '#222');
   const followButtonStyle = {
-    bg: useColorModeValue('#fff', '#222'),
-    color: useColorModeValue('#222', '#fff'),
+    bg: useColorModeValue('#222', '#fff'),
+    color: useColorModeValue('#fff', '#222'),
     _hover: {
-      bg: useColorModeValue('gray.300', 'gray.600'),
+      bg: useColorModeValue('gray.600', 'gray.300'),
     },
   };
   const { profileId } = useParams();
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
-  const dispatch = useAppDispatch();
-  const toast = useToast();
+  const {
+    isOpen: isConfirmModalOpen,
+    onOpen: onConfirmModalOpen,
+    onClose: onConfirmModalClose,
+  } = useDisclosure();
 
   const {
     data: singleUserDetails,
@@ -45,23 +48,13 @@ const ProfileCard = () => {
 
   if (isUserDetailsLoading || isUserDetailsFetching) {
     return (
-      <Box minH='5rem' w='100%' bg={bgColor} borderRadius={'md'} as='section'>
+      <Box minH='5rem' w='100%' borderRadius={'md'} as='section'>
         <Center h='full' w='full' display={'grid'} placeItems={'center'}>
-          <Spinner color={textColor} />
+          <Spinner />
         </Center>
       </Box>
     );
   }
-
-  const handleLogOut = () => {
-    dispatch(removeUserCredentials());
-    dispatch(updateLogOutStatus());
-    showToast({
-      toast,
-      type: TOAST_TYPE.Success,
-      message: 'Logged out successfully',
-    });
-  };
 
   const {
     firstName,
@@ -74,8 +67,6 @@ const ProfileCard = () => {
     following,
     createdAt,
   } = singleUserDetails;
-
-  // console.log({ singleUserDetails });
 
   const followButtonJSX = (
     <Button
@@ -90,10 +81,19 @@ const ProfileCard = () => {
 
   const editAndLogOutButtonJSX = (
     <>
+      {isConfirmModalOpen && (
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={onConfirmModalClose}
+          modalText={MODAL_TEXT_TYPE.LOGOUT}
+          isUserLoggingOut
+        />
+      )}
+
       <Button sx={followButtonStyle}>Edit Profile</Button>
       <IconButton
         aria-label='logout button'
-        onClick={handleLogOut}
+        onClick={onConfirmModalOpen}
         sx={followButtonStyle}
         borderRadius={'50%'}
       >
@@ -103,16 +103,8 @@ const ProfileCard = () => {
   );
 
   return (
-    <Box
-      w='100%'
-      bg={bgColor}
-      borderRadius={'md'}
-      as='section'
-      p='1rem 1.5rem'
-      mb='1rem'
-    >
+    <Box w='100%' as='section' p='1rem 1.5rem' mb='1rem'>
       <Box
-        key={profileId}
         as='article'
         display='flex'
         gap='.5rem'
@@ -122,11 +114,10 @@ const ProfileCard = () => {
       >
         <Avatar size='lg' name={`${firstName} ${lastName}`} src={pic} />
         <Box as='div'>
-          <Text color={textColor} fontWeight='semibold'>
+          <Text fontWeight='semibold'>
             {firstName} {lastName}
           </Text>
           <Text
-            color={textColor}
             fontSize={{ base: '.75rem', md: '.9rem' }}
             letterSpacing='widest'
             fontStyle={'italic'}
@@ -147,14 +138,13 @@ const ProfileCard = () => {
       </Box>
 
       {!!bio && (
-        <Text color={textColor} mb='.75rem' letterSpacing={{ xl: 'wider' }}>
+        <Text mb='.75rem' letterSpacing={{ xl: 'wider' }}>
           {bio}
         </Text>
       )}
 
       {!!link && (
         <ChakraLink
-          color={textColor}
           fontWeight={'semibold'}
           letterSpacing='wider'
           as={Link}
@@ -170,11 +160,13 @@ const ProfileCard = () => {
         as='div'
         display={'flex'}
         gap={'.5rem 1rem'}
-        color={textColor}
         flexWrap={'wrap'}
       >
-        <Text letterSpacing='wider'>{followers.length} followers</Text>
-        <Text letterSpacing='wider'>{following.length} following</Text>
+        <ListPopover
+          usersList={followers}
+          type={`follower${followers.length === 1 ? '' : 's'}`}
+        />
+        <ListPopover usersList={following} type='following' />
         <Text
           letterSpacing='wider'
           display={'flex'}
