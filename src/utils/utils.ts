@@ -11,6 +11,9 @@ interface loginServiceType {
   password: string;
 }
 
+export const wait = (delay: number = 500) =>
+  new Promise((res) => setTimeout(res, delay));
+
 export const showToast = ({ toast, type, message }: showToastType) => {
   toast({
     title: message,
@@ -83,15 +86,3 @@ export const filterOnFirstLastAndUserName = ({ list, trimmedSearchText }) =>
         textSearched: trimmedSearchText,
       })
   );
-
-// export const setIntoLocalStorage = (name : string, dataObj) => {
-//   localStorage.setItem(name, JSON.stringify(dataObj));
-// };
-
-// export const getFromLocalStorage = (name: string) => {
-//   return JSON.parse(localStorage.getItem(name)) ?? null;
-// };
-
-// export const removeLocalStorage = (name) => {
-//   localStorage.removeItem(name);
-// };

@@ -36,16 +36,17 @@ export const api = createApi({
           }),
         }));
       },
-      providesTags: (results) =>
-        results
+      providesTags: (results) => {
+        return results
           ? [
               { type: 'Post', id: 'LIST' },
-              ...results.map((_id: string) => ({
+              ...results.map(({ _id }) => ({
                 type: 'Post',
                 id: _id,
               })),
             ]
-          : [{ type: 'Post', id: 'LIST' }],
+          : [{ type: 'Post', id: 'LIST' }];
+      },
     }),
 
     // inside this list of posts, every single post contains a likedBy array that has a list of string (id's) that liked that post.
@@ -135,7 +136,6 @@ export const api = createApi({
       query: ({ id: userId }) => `/user/${userId}`,
       transformResponse: (response, meta, { id: userId, mainUserId }) => {
         if (userId !== mainUserId) {
-          console.log(response.user);
           const isMainUserInFollowersList = isFoundInList({
             list: response.user.followers,
             idToBeChecked: mainUserId,
@@ -167,6 +167,36 @@ export const api = createApi({
         return [{ type: 'User', id }];
       },
     }),
+
+    addNewPost: builder.mutation({
+      query: (body) => ({
+        url: '/post',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'Post', id: 'LIST' }],
+    }),
+
+    editPost: builder.mutation({
+      query: ({ postIdToUpdate, ...body }) => ({
+        url: `/post/${postIdToUpdate}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (result, error, arg) => {
+        return [{ type: 'Post', id: arg.postIdToUpdate }];
+      },
+    }),
+
+    deletePost: builder.mutation({
+      query: ({ postIdToDelete }) => ({
+        url: `/post/${postIdToDelete}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, arg) => {
+        return [{ type: 'Post', id: arg.postIdToDelete }];
+      },
+    }),
   }),
 });
 
@@ -176,4 +206,7 @@ export const {
   useGetSinglePostQuery,
   useGetAllUsersQuery,
   useGetSingleUserDetailsQuery,
+  useAddNewPostMutation,
+  useEditPostMutation,
+  useDeletePostMutation,
 } = api;

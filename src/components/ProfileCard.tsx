@@ -7,21 +7,22 @@ import {
   Spinner,
   Text,
   useColorModeValue,
-  useToast,
   IconButton,
   Icon,
   Badge,
   Link as ChakraLink,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { useAppDispatch, useAppSelector } from '../store/store-hooks';
+import { useAppSelector } from '../store/store-hooks';
 import { useParams, Link } from 'react-router-dom';
 import { useGetSingleUserDetailsQuery } from '../store/api';
-import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
-import { getCreatedDate, showToast } from '../utils/utils';
-import { TOAST_TYPE } from '../constants';
+
+import { getCreatedDate } from '../utils/utils';
+import { MODAL_TEXT_TYPE } from '../constants';
 import { HiOutlineLogout } from 'react-icons/hi';
 import { FaCalendarAlt } from 'react-icons/fa';
 import ListPopover from './ListPopover';
+import ConfirmModal from './ConfirmModal';
 
 const ProfileCard = () => {
   const followButtonStyle = {
@@ -33,8 +34,11 @@ const ProfileCard = () => {
   };
   const { profileId } = useParams();
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
-  const dispatch = useAppDispatch();
-  const toast = useToast();
+  const {
+    isOpen: isConfirmModalOpen,
+    onOpen: onConfirmModalOpen,
+    onClose: onConfirmModalClose,
+  } = useDisclosure();
 
   const {
     data: singleUserDetails,
@@ -51,16 +55,6 @@ const ProfileCard = () => {
       </Box>
     );
   }
-
-  const handleLogOut = () => {
-    dispatch(removeUserCredentials());
-    dispatch(updateLogOutStatus());
-    showToast({
-      toast,
-      type: TOAST_TYPE.Success,
-      message: 'Logged out successfully',
-    });
-  };
 
   const {
     firstName,
@@ -87,10 +81,19 @@ const ProfileCard = () => {
 
   const editAndLogOutButtonJSX = (
     <>
+      {isConfirmModalOpen && (
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={onConfirmModalClose}
+          modalText={MODAL_TEXT_TYPE.LOGOUT}
+          isUserLoggingOut
+        />
+      )}
+
       <Button sx={followButtonStyle}>Edit Profile</Button>
       <IconButton
         aria-label='logout button'
-        onClick={handleLogOut}
+        onClick={onConfirmModalOpen}
         sx={followButtonStyle}
         borderRadius={'50%'}
       >

@@ -20,6 +20,8 @@ import { IoBookmarkSharp } from 'react-icons/io5';
 import { AiFillHeart, AiOutlinePlus } from 'react-icons/ai';
 import PostModal from './PostModal';
 import { ProfileLink } from '.';
+import { useGetSingleUserDetailsQuery } from '../store/api';
+import { useAppSelector } from '../store/store-hooks';
 
 const sidebarLinks = [
   {
@@ -55,6 +57,13 @@ const sidebarLinks = [
 const Sidebar = () => {
   const bgOnLinkHover = useColorModeValue('gray.200', 'gray.700');
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const {
+    data: mainUserDetails,
+    isLoading: isMainUserLoading,
+    error,
+  } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
 
   return (
     <List
@@ -117,6 +126,7 @@ const Sidebar = () => {
         color='#fff'
         onClick={onOpen}
         mt='.5rem'
+        isDisabled={isMainUserLoading}
       >
         Post
       </Button>
@@ -128,13 +138,18 @@ const Sidebar = () => {
         colorScheme='gray'
         order={{ base: 1, md: 0 }}
         onClick={onOpen}
+        isDisabled={isMainUserLoading}
       >
-        <Icon as='span' fontSize='1.5rem'>
-          <AiOutlinePlus />
-        </Icon>
+        <Icon as={AiOutlinePlus} fontSize='1.5rem' />
       </IconButton>
 
-      <PostModal isOpen={isOpen} onClose={onClose} />
+      {isOpen && (
+        <PostModal
+          isAddingAndMainUserData={mainUserDetails}
+          isOpen={isOpen}
+          onClose={onClose}
+        />
+      )}
 
       <Spacer hideBelow='md' />
 
