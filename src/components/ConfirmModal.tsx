@@ -34,10 +34,13 @@ const ConfirmModal = ({
 
   const dispatch = useAppDispatch();
 
+  const toggleIsLoggingOutLoading = () =>
+    setIsLoggingOutLoading(!isLoggingOutLoading);
+
   const handleLogOut = async () => {
-    setIsLoggingOutLoading(!isLoggingOutLoading);
+    toggleIsLoggingOutLoading();
     await wait();
-    setIsLoggingOutLoading(!isLoggingOutLoading);
+    toggleIsLoggingOutLoading();
 
     dispatch(removeUserCredentials());
     dispatch(updateLogOutStatus());
@@ -58,7 +61,7 @@ const ConfirmModal = ({
       onClose();
     } catch (error) {
       console.log({ error: error.message });
-      showToast({ toast, type: TOAST_TYPE.Success, message });
+      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
     }
   };
 
@@ -95,6 +98,7 @@ const ConfirmModal = ({
             variant='ghost'
             bg={'red.500'}
             _hover={{ bg: 'red.600' }}
+            color='#fff'
             isLoading={isLoading}
             onClick={() => {
               isUserLoggingOut && handleLogOut();

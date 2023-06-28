@@ -208,7 +208,6 @@ const HomePage = () => {
       {NewPostJSX}
 
       <Container
-        // display='none'
         display='grid'
         gap={{ base: '1rem 0', md: '1.5rem 0' }}
         py={{ base: '1rem', md: '2rem' }}

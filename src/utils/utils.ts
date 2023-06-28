@@ -86,3 +86,14 @@ export const filterOnFirstLastAndUserName = ({ list, trimmedSearchText }) =>
         textSearched: trimmedSearchText,
       })
   );
+
+export const hasEqualProperties = ({ stateData, dataObj }) => {
+  return Object.keys(stateData).every((key) => {
+    let stateKey = stateData[key];
+    if (typeof stateKey === 'string') {
+      stateKey = stateKey.trim();
+    }
+
+    return stateKey === dataObj[key];
+  });
+};

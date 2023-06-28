@@ -31,6 +31,12 @@ const ProfilePage = () => {
     isError: isPostsError,
   } = useGetAllPostsOfAUserQuery({ mainUserId, id: profileIdFromParam });
 
+  const {
+    data: singleUserDetails,
+    isLoading: isUserDetailsLoading,
+    isFetching: isUserDetailsFetching,
+  } = useGetSingleUserDetailsQuery({ mainUserId, id: profileIdFromParam });
+
   const exploreLinkJSX = (
     <Center>
       <ChakraLink
@@ -68,9 +74,26 @@ const ProfilePage = () => {
     );
   }
 
-  if (isPostsLoading || isMainUserLoading || isPostsFetching) {
+  if (
+    isPostsLoading ||
+    isMainUserLoading ||
+    isUserDetailsLoading ||
+    isUserDetailsFetching
+  ) {
     return (
       <PostsContainer headingText={headingText}>
+        <Center>
+          <Spinner />
+        </Center>
+      </PostsContainer>
+    );
+  }
+
+  if (isPostsFetching) {
+    return (
+      <PostsContainer headingText={headingText}>
+        <ProfileCard singleUserDetails={singleUserDetails} />
+
         <Center>
           <Spinner />
         </Center>
@@ -81,7 +104,7 @@ const ProfilePage = () => {
   if (allUserPosts.length < 1) {
     return (
       <PostsContainer headingText={headingText}>
-        <ProfileCard />
+        <ProfileCard singleUserDetails={singleUserDetails} />
         <Center>
           <Text
             color={'red.400'}
@@ -100,7 +123,8 @@ const ProfilePage = () => {
 
   return (
     <PostsContainer headingText={headingText}>
-      <ProfileCard />
+      <ProfileCard singleUserDetails={singleUserDetails} />
+
       <Box
         as='section'
         display='grid'

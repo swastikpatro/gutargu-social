@@ -31,17 +31,37 @@ import {
 } from 'react-icons/bs';
 import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
-import { getCreatedDate } from '../utils/utils';
+import { getCreatedDate, showToast } from '../utils/utils';
 import { useAppSelector } from '../store/store-hooks';
 import { PostModal } from '.';
 import ConfirmModal from './ConfirmModal';
-import { MODAL_TEXT_TYPE } from '../constants';
+import { MODAL_TEXT_TYPE, TOAST_TYPE } from '../constants';
+import {
+  useLikePostMutation,
+  useUnlikePostMutation,
+  useUnbookmarkPostMutation,
+  useBookmarkPostMutation,
+} from '../store/api';
+import { forwardRef } from 'react';
 
 const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
 
+  const [likePost, { isLoading: isLikePostLoading }] = useLikePostMutation();
+  const [unlikePost, { isLoading: isUnlikePostLoading }] =
+    useUnlikePostMutation();
+
+  const [bookmarkPost, { isLoading: isBookmarkPostLoading }] =
+    useBookmarkPostMutation();
+  const [unbookmarkPost, { isLoading: isUnbookmarkPostLoading }] =
+    useUnbookmarkPostMutation();
+
+  const isLikeUnlikeLoading = isLikePostLoading || isUnlikePostLoading;
+  const isBookmarkUnbookmarkLoading =
+    isBookmarkPostLoading || isUnbookmarkPostLoading;
+
   const {
-    _id,
+    _id: postId,
     likes: { likeCount },
     author: { _id: authorId, firstName, lastName, username, pic },
     content,
@@ -67,6 +87,34 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   const handleCopyToClipboard = () => {
     // navigator.clipboard.writeText()
     console.log('copy');
+  };
+
+  const handleLikeUnlikePost = async () => {
+    try {
+      await (isLikedByMainUser
+        ? unlikePost({
+            postData,
+            mainUserId,
+          })
+        : likePost({
+            postData,
+            mainUserId,
+          })
+      ).unwrap();
+    } catch (error) {
+      console.log({ error });
+    }
+  };
+
+  const handleBookmarkUnbookmark = async () => {
+    try {
+      await (isBookmarkedByMainUser
+        ? unbookmarkPost({ postIdToUnBookmark: postId, mainUserId })
+        : bookmarkPost({ postData, mainUserId })
+      ).unwrap();
+    } catch (error) {
+      console.log({ error: error.message });
+    }
   };
 
   return (
@@ -163,13 +211,13 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             isOpen={isConfirmModalOpen}
             onClose={onConfirmModalClose}
             modalText={MODAL_TEXT_TYPE.DELETE_POST}
-            isDeletingPostAndPostId={_id}
+            isDeletingPostAndPostId={postId}
           />
         )}
 
         <ChakraLink
           as={Link}
-          to={`/post/${_id}`}
+          to={`/post/${postId}`}
           _hover={{ textDecoration: 'none' }}
         >
           <Text
@@ -178,24 +226,32 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           >
             {content}
           </Text>
+
+          {!!imageUrl && !imageUrl.includes('.mp4') && (
+            <Container
+              // border='2px solid red'
+              w='full'
+              minH='20rem'
+              h='fit-content'
+              mt={'.75rem'}
+              p='0'
+              borderRadius='md'
+              overflow={'hidden'}
+            >
+              <Image
+                objectFit='cover'
+                w='full'
+                h='full'
+                bg={'#fff'}
+                src={imageUrl}
+                alt='post image'
+              />
+            </Container>
+          )}
+
+          {imageUrl.includes('.mp4') && <video controls src={imageUrl} />}
         </ChakraLink>
       </CardBody>
-
-      {!!imageUrl && !imageUrl.includes('.mp4') && (
-        <Container w='full' minH='20rem' h='fit-content' pb='.5rem'>
-          <Image
-            borderRadius='md'
-            objectFit='cover'
-            w='full'
-            h='full'
-            bg={'#fff'}
-            src={imageUrl}
-            alt='post image'
-          />
-        </Container>
-      )}
-
-      {imageUrl.includes('.mp4') && <video controls src={imageUrl} />}
 
       <CardFooter
         py={{ base: '.5rem' }}
@@ -211,14 +267,18 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           gap={{ base: '0', md: '.1rem' }}
         >
           <IconButton
+            onClick={handleLikeUnlikePost}
             variant='ghost'
             aria-label='Like Unlike Toggle'
             cursor='pointer'
             borderRadius='50%'
-            bg='transparent'
+            // bg='transparent'
             fontSize={{ base: '1rem', md: '1.25rem' }}
             w='2rem'
             color={isLikedByMainUser ? 'red' : 'inherit'}
+            isDisabled={isLikeUnlikeLoading}
+            // _disabled={{ cursor: 'progress' }}
+            _hover={{ bg: 'transparent' }}
           >
             <Icon as={isLikedByMainUser ? BsFillHeartFill : BsHeart} />
           </IconButton>
@@ -247,6 +307,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         </Box> */}
 
         <IconButton
+          onClick={handleBookmarkUnbookmark}
           variant='ghost'
           aria-label='Like Unlike Toggle'
           cursor='pointer'
@@ -255,6 +316,9 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           fontSize={{ base: '1rem', md: '1.25rem' }}
           w='2rem'
           color={isBookmarkedByMainUser ? 'green' : 'inherit'}
+          isDisabled={isBookmarkUnbookmarkLoading}
+          // _disabled={{ cursor: 'progress' }}
+          _hover={{ bg: 'transparent' }}
         >
           <Icon as={isBookmarkedByMainUser ? BsFillBookmarkFill : BsBookmark} />
         </IconButton>

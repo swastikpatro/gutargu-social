@@ -21,6 +21,8 @@ const fetchBaseQueryWithToken = fetchBaseQuery({
 
 export const api = createApi({
   baseQuery: fetchBaseQueryWithToken,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   reducerPath: 'socialApi',
   tagTypes: ['Post', 'User'],
   endpoints: (builder) => ({
@@ -52,10 +54,10 @@ export const api = createApi({
     // inside this list of posts, every single post contains a likedBy array that has a list of string (id's) that liked that post.
     getAllPostsOfAUser: builder.query({
       query: ({ id: userId }) => `/user/all-posts/${userId}`,
-      transformResponse: (response, meta, mainUserId) => {
+      transformResponse: (response, meta, { id: userId, mainUserId }) => {
         return response.posts.map((post) => ({
           ...post,
-          isLikedByMainUser: isIncludedInList({
+          isLikedByMainUser: isFoundInList({
             list: post.likes.likedBy,
             idToBeChecked: mainUserId,
           }),
@@ -98,8 +100,7 @@ export const api = createApi({
         if (!results) {
           return [];
         }
-        const { _id } = results;
-        return [{ type: 'Post', id: _id }];
+        return [{ type: 'Post', id: arg.id }];
       },
     }),
 
@@ -151,20 +152,26 @@ export const api = createApi({
           };
         }
 
+        const bookmarkedPostIds = {};
+        response.user.bookmarks.forEach((singlePost) => {
+          bookmarkedPostIds[singlePost._id] = true;
+        });
+
         return {
           ...response.user,
           bookmarks: response.user.bookmarks.map((post) => ({
             ...post,
             isLikedByMainUser: post.likes.likedBy.includes(mainUserId),
           })),
-          bookmarkedPostIds: response.user.bookmarks.reduce((acc, curr) => {
-            acc[curr._id] = true;
-            return acc;
-          }, {}),
+          bookmarkedPostIds,
+          // response.user.bookmarks.reduce((acc, curr) => {
+          //   acc[curr._id] = true;
+          //   return acc;
+          // }, {}),
         };
       },
-      providesTags: (result, error, id) => {
-        return [{ type: 'User', id }];
+      providesTags: (result, error, arg) => {
+        return [{ type: 'User', id: arg.id }];
       },
     }),
 
@@ -197,6 +204,200 @@ export const api = createApi({
         return [{ type: 'Post', id: arg.postIdToDelete }];
       },
     }),
+
+    likePost: builder.mutation({
+      query: ({ postData: { _id: postIdToLike } }) => ({
+        url: '/post/like',
+        method: 'POST',
+        body: {
+          postId: postIdToLike,
+        },
+      }),
+      onQueryStarted: async (
+        { postData, mainUserId },
+        { dispatch, queryFulfilled }
+      ) => {
+        const updatePostLike = ({ listOfPosts }) => {
+          const postToUpdateOptimistic = listOfPosts.find(
+            (post) => post._id === postData._id
+          );
+          if (postToUpdateOptimistic) {
+            postToUpdateOptimistic.isLikedByMainUser = true;
+            postToUpdateOptimistic.likes.likeCount += 1;
+          }
+        };
+
+        const likeResultForAllPosts = dispatch(
+          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+            updatePostLike({ listOfPosts: draft })
+          )
+        );
+
+        const likeResultForAllPostsOfAUser = dispatch(
+          api.util.updateQueryData(
+            'getAllPostsOfAUser',
+            { id: postData.author._id, mainUserId },
+            (draft) => updatePostLike({ listOfPosts: draft })
+          )
+        );
+
+        const likeResultForSinglePost = dispatch(
+          api.util.updateQueryData(
+            'getSinglePost',
+            { id: postData._id, mainUserId },
+            (draft) => {
+              draft.isLikedByMainUser = true;
+              draft.likes.likeCount += 1;
+            }
+          )
+        );
+
+        const likeResultForBookmarkPosts = dispatch(
+          api.util.updateQueryData(
+            'getSingleUserDetails',
+            { id: mainUserId, mainUserId },
+            (draft) => updatePostLike({ listOfPosts: draft.bookmarks })
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          likeResultForAllPosts.undo();
+          likeResultForAllPostsOfAUser.undo();
+          likeResultForSinglePost.undo();
+          likeResultForBookmarkPosts.undo();
+        }
+      },
+    }),
+
+    unlikePost: builder.mutation({
+      query: ({ postData: { _id: postIdToUnlike } }) => ({
+        url: '/post/dislike',
+        method: 'POST',
+        body: {
+          postId: postIdToUnlike,
+        },
+      }),
+      onQueryStarted: async (
+        { postData, mainUserId },
+        { dispatch, queryFulfilled }
+      ) => {
+        const updatePostUnlike = ({ listOfPosts }) => {
+          const postToUpdateOptimistic = listOfPosts.find(
+            (post) => post._id === postData._id
+          );
+          if (postToUpdateOptimistic) {
+            postToUpdateOptimistic.isLikedByMainUser = false;
+            postToUpdateOptimistic.likes.likeCount -= 1;
+          }
+        };
+
+        const unlikeResultForAllPosts = dispatch(
+          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+            updatePostUnlike({ listOfPosts: draft })
+          )
+        );
+
+        const unlikeResultForAllPostsOfAUser = dispatch(
+          api.util.updateQueryData(
+            'getAllPostsOfAUser',
+            { id: postData.author._id, mainUserId },
+            (draft) => updatePostUnlike({ listOfPosts: draft })
+          )
+        );
+
+        const unlikeResultForSinglePost = dispatch(
+          api.util.updateQueryData(
+            'getSinglePost',
+            { id: postData._id, mainUserId },
+            (draft) => {
+              draft.isLikedByMainUser = false;
+              draft.likes.likeCount -= 1;
+            }
+          )
+        );
+
+        const unlikeResultForBookmarkPosts = dispatch(
+          api.util.updateQueryData(
+            'getSingleUserDetails',
+            { id: mainUserId, mainUserId },
+            (draft) => updatePostUnlike({ listOfPosts: draft.bookmarks })
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          unlikeResultForAllPosts.undo();
+          unlikeResultForAllPostsOfAUser.undo();
+          unlikeResultForSinglePost.undo();
+          unlikeResultForBookmarkPosts.undo();
+        }
+      },
+    }),
+
+    bookmarkPost: builder.mutation({
+      query: ({ postData: { _id: postIdToBookmark } }) => ({
+        url: `/post/bookmark/${postIdToBookmark}?=`,
+        method: 'POST',
+      }),
+      onQueryStarted: async (
+        { postData, mainUserId },
+        { dispatch, queryFulfilled }
+      ) => {
+        const bookmarkResult = dispatch(
+          api.util.updateQueryData(
+            'getSingleUserDetails',
+            { id: mainUserId, mainUserId },
+            (draft) => {
+              if (draft.bookmarks) {
+                draft.bookmarks.push(postData);
+                draft.bookmarkedPostIds[postData._id] = true;
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          bookmarkResult.undo();
+        }
+      },
+    }),
+
+    unbookmarkPost: builder.mutation({
+      query: ({ postIdToUnBookmark }) => ({
+        url: `/post/bookmark/${postIdToUnBookmark}`,
+        method: 'DELETE',
+      }),
+      onQueryStarted: async (
+        { postIdToUnBookmark, mainUserId },
+        { dispatch, queryFulfilled }
+      ) => {
+        const unbookmarkResult = dispatch(
+          api.util.updateQueryData(
+            'getSingleUserDetails',
+            { id: mainUserId, mainUserId },
+            (draft) => {
+              if (draft.bookmarkedPostIds && draft.bookmarks) {
+                delete draft.bookmarkedPostIds[postIdToUnBookmark];
+                draft.bookmarks = draft.bookmarks.filter(
+                  ({ _id: singlePostId }) => singlePostId !== postIdToUnBookmark
+                );
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          unbookmarkResult.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -209,4 +410,8 @@ export const {
   useAddNewPostMutation,
   useEditPostMutation,
   useDeletePostMutation,
+  useLikePostMutation,
+  useUnlikePostMutation,
+  useBookmarkPostMutation,
+  useUnbookmarkPostMutation,
 } = api;

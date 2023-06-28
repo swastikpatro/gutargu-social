@@ -18,7 +18,7 @@ const ProfileLink = () => {
     data: mainUser,
     isLoading: isMainUserLoading,
     error,
-  } = useGetSingleUWserDetailsQuery({ mainUserId, id: mainUserId });
+  } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
 
   if (isMainUserLoading) {
     return (
