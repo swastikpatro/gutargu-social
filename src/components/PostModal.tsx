@@ -23,7 +23,7 @@ import {
 import { useRef, useState } from 'react';
 import { useAddNewPostMutation, useEditPostMutation } from '../store/api';
 import { TOAST_TYPE } from '../constants';
-import { showToast } from '../utils/utils';
+import { hasEqualProperties, showToast } from '../utils/utils';
 
 interface PostModalProps {
   isOpen: boolean;
@@ -63,6 +63,16 @@ const PostModal = ({
         }
   );
 
+  let isPostButtonDisable = !inputs.content && !inputs.imageUrl;
+  if (!!isEditingAndMainUserData) {
+    // if the state has similar properties to isEditingAndMainUserData or (there is no content and image at a single time on the screen), during this post btn is disabled.
+    isPostButtonDisable =
+      hasEqualProperties({
+        stateData: inputs,
+        dataObj: isEditingAndMainUserData,
+      }) || isPostButtonDisable;
+  }
+
   const handleInputs = (e) => {
     const targetElement = e.target;
     const targetName = e.target.name;
@@ -97,7 +107,7 @@ const PostModal = ({
       onClose();
     } catch (error) {
       console.log({ error: error.message });
-      showToast({ toast, type: TOAST_TYPE.Success, message });
+      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
     }
   };
 
@@ -172,9 +182,12 @@ const PostModal = ({
               p='1rem 1.5rem'
               color='#fff'
               onClick={handleSubmit}
+              _loading={{ cursor: 'pointer' }}
               isLoading={isSubmitting}
+              isDisabled={isPostButtonDisable}
             >
-              {!!isAddingAndMainUserData ? 'Post' : 'Update'}
+              {!!isAddingAndMainUserData && 'Post'}
+              {!!isEditingAndMainUserData && 'Update'}
             </Button>
           </Flex>
         </ModalFooter>

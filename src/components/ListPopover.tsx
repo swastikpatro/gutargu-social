@@ -27,7 +27,7 @@ const ListPopover = ({ usersList, type }) => {
         </Text>
       </PopoverTrigger>
 
-      <PopoverContent w='fit-content'>
+      <PopoverContent w='fit-content' boxShadow='md'>
         <PopoverArrow />
 
         <PopoverBody p={0}>

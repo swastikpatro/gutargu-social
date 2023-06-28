@@ -2,9 +2,7 @@ import {
   Avatar,
   Box,
   Button,
-  Center,
   Spacer,
-  Spinner,
   Text,
   useColorModeValue,
   IconButton,
@@ -14,8 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useAppSelector } from '../store/store-hooks';
-import { useParams, Link } from 'react-router-dom';
-import { useGetSingleUserDetailsQuery } from '../store/api';
+import { Link } from 'react-router-dom';
 
 import { getCreatedDate } from '../utils/utils';
 import { MODAL_TEXT_TYPE } from '../constants';
@@ -24,7 +21,7 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import ListPopover from './ListPopover';
 import ConfirmModal from './ConfirmModal';
 
-const ProfileCard = () => {
+const ProfileCard = ({ singleUserDetails }) => {
   const followButtonStyle = {
     bg: useColorModeValue('#222', '#fff'),
     color: useColorModeValue('#fff', '#222'),
@@ -32,29 +29,13 @@ const ProfileCard = () => {
       bg: useColorModeValue('gray.600', 'gray.300'),
     },
   };
-  const { profileId } = useParams();
   const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+
   const {
     isOpen: isConfirmModalOpen,
     onOpen: onConfirmModalOpen,
     onClose: onConfirmModalClose,
   } = useDisclosure();
-
-  const {
-    data: singleUserDetails,
-    isLoading: isUserDetailsLoading,
-    isFetching: isUserDetailsFetching,
-  } = useGetSingleUserDetailsQuery({ mainUserId, id: profileId });
-
-  if (isUserDetailsLoading || isUserDetailsFetching) {
-    return (
-      <Box minH='5rem' w='100%' borderRadius={'md'} as='section'>
-        <Center h='full' w='full' display={'grid'} placeItems={'center'}>
-          <Spinner />
-        </Center>
-      </Box>
-    );
-  }
 
   const {
     firstName,
@@ -134,7 +115,9 @@ const ProfileCard = () => {
 
         <Spacer />
 
-        {profileId === mainUserId ? editAndLogOutButtonJSX : followButtonJSX}
+        {singleUserDetails._id === mainUserId
+          ? editAndLogOutButtonJSX
+          : followButtonJSX}
       </Box>
 
       {!!bio && (
