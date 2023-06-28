@@ -4,10 +4,11 @@ import {
   useGetAllPostsQuery,
   useGetSingleUserDetailsQuery,
 } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
+
+import { useSelector } from 'react-redux';
 
 const ExplorePage = () => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const {
     data: allPosts,

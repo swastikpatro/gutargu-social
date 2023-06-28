@@ -9,12 +9,12 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { useAppSelector } from '../store/store-hooks';
 import { useGetAllUsersQuery } from '../store/api';
 import UserHeader from './UserHeader';
+import { useSelector } from 'react-redux';
 
 const FollowerSidebar = () => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const { data: allUsers, isLoading: isAllUsersLoading } =
     useGetAllUsersQuery(mainUserId);

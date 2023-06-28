@@ -16,13 +16,14 @@ import { PostCard, PostModal, PostsContainer } from '../components';
 import { MdAddCircle } from 'react-icons/md';
 import { useState } from 'react';
 import { FaFire } from 'react-icons/fa';
-import { useAppSelector } from '../store/store-hooks';
+
 import {
   useGetAllPostsQuery,
   useGetSingleUserDetailsQuery,
 } from '../store/api';
 import { sortByCreatedDate, sortByLikeCount } from '../utils/utils';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const sortTypesAvailable = [
   {
@@ -54,7 +55,7 @@ const sortTypesAvailable = [
 ];
 
 const HomePage = () => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const { data: allPosts, isLoading: isAllPostsLoading } =
     useGetAllPostsQuery(mainUserId);

@@ -40,7 +40,7 @@ const fonts = {
 };
 
 const styles = {
-  global: (props: any) => ({
+  global: (props) => ({
     'html, body': {
       bg: props.colorMode === 'dark' ? 'gray.900' : 'whiteAlpha.800',
     },

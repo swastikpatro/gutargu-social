@@ -14,8 +14,8 @@ import { useState } from 'react';
 import { useDeletePostMutation } from '../store/api';
 import { showToast, wait } from '../utils/utils';
 import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
-import { useAppDispatch } from '../store/store-hooks';
 import { TOAST_TYPE } from '../constants';
+import { useDispatch } from 'react-redux';
 
 // this will have delete post functionality and log out user functionality
 const ConfirmModal = ({
@@ -32,7 +32,7 @@ const ConfirmModal = ({
 
   const isLoading = isPostDeleting || isLoggingOutLoading;
 
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const toggleIsLoggingOutLoading = () =>
     setIsLoggingOutLoading(!isLoggingOutLoading);

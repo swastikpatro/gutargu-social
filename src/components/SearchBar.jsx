@@ -5,28 +5,26 @@ import {
   PopoverContent,
   PopoverTrigger,
   Center,
-  PopoverCloseButton,
   useDisclosure,
   useColorModeValue,
   Spinner,
-  Avatar,
   Text,
   PopoverBody,
   InputGroup,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGetAllUsersQuery } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
 import { Link } from 'react-router-dom';
 import { DEBOUNCED_DELAY } from '../constants';
 import { filterOnFirstLastAndUserName } from '../utils/utils';
 import UserHeader from './UserHeader';
+import { useSelector } from 'react-redux';
 
 const SearchBar = () => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
-  const [searchText, setSearchText] = useState<string>('');
+  const [searchText, setSearchText] = useState('');
   const trimmedSearchText = searchText.trim();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -39,7 +37,7 @@ const SearchBar = () => {
   const { data: allUsers, isLoading: isUsersLoading } =
     useGetAllUsersQuery(mainUserId);
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handleSearchChange = (e) => {
     const userTypedText = e.target.value;
 
     setIsFilteringLoading(true);
@@ -53,7 +51,7 @@ const SearchBar = () => {
   };
 
   useEffect(() => {
-    let timer: number | undefined;
+    let timer;
     if (!isUsersLoading) {
       timer = setTimeout(() => {
         const listAsPerSearch = filterOnFirstLastAndUserName({

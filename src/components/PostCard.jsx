@@ -29,23 +29,22 @@ import {
   BsFillHeartFill,
   BsFillBookmarkFill,
 } from 'react-icons/bs';
-import { TfiComment } from 'react-icons/tfi';
+// import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
-import { getCreatedDate, showToast } from '../utils/utils';
-import { useAppSelector } from '../store/store-hooks';
-import { PostModal } from '.';
+import { getCreatedDate } from '../utils/utils';
+import PostModal from './PostModal';
 import ConfirmModal from './ConfirmModal';
-import { MODAL_TEXT_TYPE, TOAST_TYPE } from '../constants';
+import { MODAL_TEXT_TYPE } from '../constants';
 import {
   useLikePostMutation,
   useUnlikePostMutation,
   useUnbookmarkPostMutation,
   useBookmarkPostMutation,
 } from '../store/api';
-import { forwardRef } from 'react';
+import { useSelector } from 'react-redux';
 
 const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const [likePost, { isLoading: isLikePostLoading }] = useLikePostMutation();
   const [unlikePost, { isLoading: isUnlikePostLoading }] =

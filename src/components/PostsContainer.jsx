@@ -1,10 +1,6 @@
 import { Container, Heading } from '@chakra-ui/react';
 
-interface PostsContainerProps {
-  children: React.ReactNode;
-  headingText: string;
-}
-const PostsContainer = ({ children, headingText }: PostsContainerProps) => {
+const PostsContainer = ({ children, headingText }) => {
   return (
     <Container
       display='grid'

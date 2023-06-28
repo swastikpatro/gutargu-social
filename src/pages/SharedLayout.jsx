@@ -1,9 +1,8 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { FollowerSidebar, Navbar, PageLoader, Sidebar } from '../components';
+import { FollowerSidebar, Navbar, Sidebar } from '../components';
 import { Box, Container, useColorModeValue } from '@chakra-ui/react';
 import { sectionCenterStyles } from '../styles/GlobalStyles';
 import { useEffect } from 'react';
-import { useAppSelector } from '../store/store-hooks';
 
 const SharedLayout = () => {
   const location = useLocation();

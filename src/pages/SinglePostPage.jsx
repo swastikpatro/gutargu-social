@@ -4,12 +4,12 @@ import {
   useGetSinglePostQuery,
   useGetSingleUserDetailsQuery,
 } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
 import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { useSelector } from 'react-redux';
 
 const SinglePostPage = () => {
   const { postId } = useParams();
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const {
     data: singlePost,

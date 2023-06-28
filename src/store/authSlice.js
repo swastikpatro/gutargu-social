@@ -1,14 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
-interface initialStateType {
-  token: null | string;
-  mainUserId: null | string;
-  isLoggedOut: boolean;
-}
-
-const initialState: initialStateType = {
+const initialState = {
   token: localStorage.getItem(LOCAL_STORAGE_KEYS.Token),
   mainUserId: localStorage.getItem(LOCAL_STORAGE_KEYS.Token)
     ? jwt_decode(localStorage.getItem(LOCAL_STORAGE_KEYS.Token))._id
@@ -20,7 +14,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    addUserCredentials: (state, action: PayloadAction<string>) => {
+    addUserCredentials: (state, action) => {
       state.token = action.payload;
       state.mainUserId = jwt_decode(action.payload)._id;
     },

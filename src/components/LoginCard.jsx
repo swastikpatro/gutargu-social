@@ -13,9 +13,9 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import PasswordInput from './PasswordInput';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/store-hooks';
+
 import { addUserCredentials } from '../store/authSlice';
 import {
   LOCAL_STORAGE_KEYS,
@@ -26,6 +26,7 @@ import {
 import { loginService, showToast } from '../utils/utils';
 import { useNavigateIfRegistered } from '../hooks';
 import PageLoader from './PageLoader';
+import { useDispatch, useSelector } from 'react-redux';
 
 const LoginCard = () => {
   const location = useLocation();
@@ -34,13 +35,13 @@ const LoginCard = () => {
     cardBgColor: useColorModeValue('white', 'gray.700'),
   };
 
-  const { token: tokenFromSlice, isLoggedOut } = useAppSelector(
+  const { token: tokenFromSlice, isLoggedOut } = useSelector(
     (store) => store.auth
   );
 
   useNavigateIfRegistered({ token: tokenFromSlice, isLoggedOut });
 
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const initialLoginState = {
     email: '',
@@ -52,15 +53,12 @@ const LoginCard = () => {
 
   const toast = useToast();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
   // used for both the buttons
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent,
-    clickType: string
-  ) => {
+  const handleSubmit = async (e, clickType) => {
     e.preventDefault();
 
     const isGuestClick = clickType === LOGIN_CLICK_TYPE.GuestClick;
@@ -90,7 +88,7 @@ const LoginCard = () => {
         type: TOAST_TYPE.Success,
         message,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error.message);
 
       showToast({

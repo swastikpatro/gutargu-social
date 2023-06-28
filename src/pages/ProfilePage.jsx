@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useAppSelector } from '../store/store-hooks';
+
 import {
   useGetAllPostsOfAUserQuery,
   useGetSingleUserDetailsQuery,
@@ -13,12 +13,13 @@ import {
   Text,
   Heading,
 } from '@chakra-ui/react';
+import { useSelector } from 'react-redux';
 
 const ProfilePage = () => {
   const headingText = 'User Profile Page';
 
   const { profileId: profileIdFromParam } = useParams();
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   // for bookmarks
   const { data: mainUserDetails, isLoading: isMainUserLoading } =

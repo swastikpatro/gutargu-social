@@ -5,15 +5,13 @@ import {
   Link as ChakraLink,
   ListItem,
   Text,
-  Tooltip,
   useColorModeValue,
   IconButton,
   Icon,
   useDisclosure,
   Spacer,
-  Avatar,
 } from '@chakra-ui/react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { MdExplore } from 'react-icons/md';
 import { RiHome7Fill } from 'react-icons/ri';
 import { IoBookmarkSharp } from 'react-icons/io5';
@@ -21,7 +19,7 @@ import { AiFillHeart, AiOutlinePlus } from 'react-icons/ai';
 import PostModal from './PostModal';
 import { ProfileLink } from '.';
 import { useGetSingleUserDetailsQuery } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
+import { useSelector } from 'react-redux';
 
 const sidebarLinks = [
   {
@@ -58,11 +56,11 @@ const Sidebar = () => {
   const bgOnLinkHover = useColorModeValue('gray.200', 'gray.700');
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
   const {
     data: mainUserDetails,
     isLoading: isMainUserLoading,
-    error,
+    // error,
   } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
 
   return (

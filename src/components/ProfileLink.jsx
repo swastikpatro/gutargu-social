@@ -9,15 +9,15 @@ import {
 } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import { useGetSingleUserDetailsQuery } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
+import { useSelector } from 'react-redux';
 
 const ProfileLink = () => {
   const linkBg = useColorModeValue('gray.200', 'gray.700');
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
   const {
     data: mainUser,
     isLoading: isMainUserLoading,
-    error,
+    // error,
   } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
 
   if (isMainUserLoading) {

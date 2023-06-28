@@ -1,20 +1,12 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../store/store-hooks';
 import { updateLogOutStatus } from '../store/authSlice';
+import { useDispatch } from 'react-redux';
 
-interface useNavigateIfRegisteredPropType {
-  token: string | null;
-  isLoggedOut: boolean;
-}
-
-const useNavigateIfRegistered = ({
-  token,
-  isLoggedOut,
-}: useNavigateIfRegisteredPropType) => {
+const useNavigateIfRegistered = ({ token, isLoggedOut }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!token) {

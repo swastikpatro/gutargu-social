@@ -1,8 +1,7 @@
-import { Avatar, Box, Text, Link as ChakraLink, Flex } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Avatar, Box, Text, Flex } from '@chakra-ui/react';
 
 const UserHeader = ({ user }) => {
-  const { id_: userId, firstName, lastName, username, pic } = user;
+  const { firstName, lastName, username, pic } = user;
   return (
     <Flex gap={'.5rem'} alignItems={'center'}>
       <Avatar

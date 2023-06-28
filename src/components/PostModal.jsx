@@ -2,12 +2,12 @@ import {
   Avatar,
   Button,
   Flex,
-  FormControl,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
+  // FormControl,
+  // Icon,
+  // IconButton,
+  // Input,
+  // InputGroup,
+  // InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -25,12 +25,6 @@ import { useAddNewPostMutation, useEditPostMutation } from '../store/api';
 import { TOAST_TYPE } from '../constants';
 import { hasEqualProperties, showToast } from '../utils/utils';
 
-interface PostModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  // isAddingAndMainUserData:
-}
-
 const PostModal = ({
   isOpen,
   onClose,
@@ -45,14 +39,14 @@ const PostModal = ({
 
   const isSubmitting = isLoadingOnAdd || isLoadingOnEdit;
 
-  const { firstName, lastName, pic } = !!isAddingAndMainUserData
+  const { firstName, lastName, pic } = isAddingAndMainUserData
     ? isAddingAndMainUserData
-    : isEditingAndMainUserData?.author;
+    : isEditingAndMainUserData.author;
 
   const postIdToUpdate = isEditingAndMainUserData?._id;
 
   const [inputs, setInputs] = useState(
-    !!isEditingAndMainUserData
+    isEditingAndMainUserData
       ? {
           imageUrl: isEditingAndMainUserData.imageUrl,
           content: isEditingAndMainUserData.content,
@@ -64,7 +58,7 @@ const PostModal = ({
   );
 
   let isPostButtonDisable = !inputs.content && !inputs.imageUrl;
-  if (!!isEditingAndMainUserData) {
+  if (isEditingAndMainUserData) {
     // if the state has similar properties to isEditingAndMainUserData or (there is no content and image at a single time on the screen), during this post btn is disabled.
     isPostButtonDisable =
       hasEqualProperties({
@@ -92,12 +86,12 @@ const PostModal = ({
     }
     try {
       let message = '';
-      if (!!isAddingAndMainUserData) {
+      if (isAddingAndMainUserData) {
         const response = await addNewPost(inputs).unwrap();
         message = response.message;
       }
 
-      if (!!isEditingAndMainUserData) {
+      if (isEditingAndMainUserData) {
         console.log({ postIdToUpdate });
         const response = await editPost({ ...inputs, postIdToUpdate }).unwrap();
         message = response.message;
@@ -122,7 +116,7 @@ const PostModal = ({
       <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(8px)' />
       <ModalContent>
         <ModalHeader>
-          {!!isAddingAndMainUserData ? 'New' : 'Edit'} Post
+          {isAddingAndMainUserData ? 'New' : 'Edit'} Post
         </ModalHeader>
 
         <ModalCloseButton isDisabled={isSubmitting} />

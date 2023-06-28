@@ -13,25 +13,25 @@ import {
   Link as ChakraLink,
   useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { loginService, showToast } from '../utils/utils';
 import { TOAST_TYPE, URL } from '../constants';
-import { useAppDispatch, useAppSelector } from '../store/store-hooks';
 import { addUserCredentials } from '../store/authSlice';
 import { useNavigateIfRegistered } from '../hooks';
 import PageLoader from './PageLoader';
 import PasswordInput from './PasswordInput';
+import { useDispatch, useSelector } from 'react-redux';
 
 const SignupCard = () => {
   const location = useLocation();
-  const { token: tokenFromSlice, isLoggedOut } = useAppSelector(
+  const { token: tokenFromSlice, isLoggedOut } = useSelector(
     (store) => store.auth
   );
 
   useNavigateIfRegistered({ token: tokenFromSlice, isLoggedOut });
 
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const [inputs, setInputs] = useState({
     firstName: '',
@@ -50,11 +50,11 @@ const SignupCard = () => {
     cardBgColor: useColorModeValue('white', 'gray.700'),
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
-  const handleCreateAccount = async (e: FormEvent) => {
+  const handleCreateAccount = async (e) => {
     e.preventDefault();
 
     if (inputs.passwordMain.length < 6) {
@@ -124,7 +124,7 @@ const SignupCard = () => {
       dispatch(addUserCredentials(token));
       // show success toast
       showToast({ toast, type: TOAST_TYPE.Success, message });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error.message);
 
       showToast({ toast, type: TOAST_TYPE.Error, message: error.message });

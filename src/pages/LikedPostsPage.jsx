@@ -3,16 +3,16 @@ import {
   useGetAllPostsQuery,
   useGetSingleUserDetailsQuery,
 } from '../store/api';
-import { useAppSelector } from '../store/store-hooks';
 import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const LikedPostsPage = () => {
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
   const {
     data: allPosts,
     isLoading: isAllPostsLoading,
-    isError,
+    // isError,
   } = useGetAllPostsQuery(mainUserId);
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =

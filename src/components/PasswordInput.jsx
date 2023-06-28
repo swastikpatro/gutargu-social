@@ -8,26 +8,10 @@ import {
   InputRightElement,
 } from '@chakra-ui/react';
 
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 
-interface PasswordInputProps {
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  value: string;
-  name: string;
-  id: string;
-  label: string;
-  disabled: boolean;
-}
-
-const PasswordInput = ({
-  onChange,
-  value,
-  name,
-  id,
-  label,
-  disabled,
-}: PasswordInputProps) => {
+const PasswordInput = ({ onChange, value, name, id, label, disabled }) => {
   const [showPassword, setShowPassword] = useState(false);
   return (
     <FormControl isRequired id={id}>

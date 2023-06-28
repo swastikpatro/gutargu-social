@@ -1,20 +1,9 @@
 import { URL } from '../constants';
 
-interface showToastType {
-  toast: any;
-  type: string;
-  message: string;
-}
-
-interface loginServiceType {
-  email: string;
-  password: string;
-}
-
-export const wait = (delay: number = 500) =>
+export const wait = (delay = 500) =>
   new Promise((res) => setTimeout(res, delay));
 
-export const showToast = ({ toast, type, message }: showToastType) => {
+export const showToast = ({ toast, type, message }) => {
   toast({
     title: message,
     status: type,
@@ -24,7 +13,7 @@ export const showToast = ({ toast, type, message }: showToastType) => {
   });
 };
 
-export const loginService = async ({ email, password }: loginServiceType) => {
+export const loginService = async ({ email, password }) => {
   const response = await fetch(`${URL}/auth/signin`, {
     method: 'POST',
     headers: {
@@ -38,7 +27,7 @@ export const loginService = async ({ email, password }: loginServiceType) => {
   return { message, token };
 };
 
-export const getCreatedDate = (dateString: string) =>
+export const getCreatedDate = (dateString) =>
   new Date(dateString).toLocaleDateString('en-IN', {
     month: 'long',
     day: 'numeric',

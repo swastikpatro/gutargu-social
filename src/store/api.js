@@ -1,12 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { URL } from '../constants';
-import { RootState } from './store';
 import { isFoundInList, isIncludedInList } from '../utils/utils';
 
 const fetchBaseQueryWithToken = fetchBaseQuery({
   baseUrl: `${URL}`,
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
+    const token = getState().auth.token;
 
     if (token) {
       headers.set('authorization', token);
@@ -30,6 +29,8 @@ export const api = createApi({
     getAllPosts: builder.query({
       query: () => '/post',
       transformResponse: (response, meta, mainUserId) => {
+        console.log({ response });
+
         return response.posts.map((post) => ({
           ...post,
           isLikedByMainUser: isIncludedInList({
@@ -124,7 +125,7 @@ export const api = createApi({
         results
           ? [
               { type: 'User', id: 'LIST' },
-              ...results.map((_id: string) => ({
+              ...results.map((_id) => ({
                 type: 'User',
                 id: _id,
               })),

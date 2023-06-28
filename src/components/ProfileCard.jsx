@@ -11,7 +11,6 @@ import {
   Link as ChakraLink,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useAppSelector } from '../store/store-hooks';
 import { Link } from 'react-router-dom';
 
 import { getCreatedDate } from '../utils/utils';
@@ -20,6 +19,7 @@ import { HiOutlineLogout } from 'react-icons/hi';
 import { FaCalendarAlt } from 'react-icons/fa';
 import ListPopover from './ListPopover';
 import ConfirmModal from './ConfirmModal';
+import { useSelector } from 'react-redux';
 
 const ProfileCard = ({ singleUserDetails }) => {
   const followButtonStyle = {
@@ -29,7 +29,7 @@ const ProfileCard = ({ singleUserDetails }) => {
       bg: useColorModeValue('gray.600', 'gray.300'),
     },
   };
-  const mainUserId = useAppSelector((store) => store.auth.mainUserId);
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const {
     isOpen: isConfirmModalOpen,
