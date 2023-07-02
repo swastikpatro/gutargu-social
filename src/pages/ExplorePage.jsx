@@ -2,8 +2,9 @@ import { Center, Spinner } from '@chakra-ui/react';
 import { PostCard, PostsContainer } from '../components';
 import {
   useGetAllPostsQuery,
-  useGetSingleUserDetailsQuery,
+  useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
+import { pollingInterval } from '../constants';
 
 import { useSelector } from 'react-redux';
 
@@ -14,10 +15,10 @@ const ExplorePage = () => {
     data: allPosts,
     isLoading: isAllPostsLoading,
     isError,
-  } = useGetAllPostsQuery(mainUserId);
+  } = useGetAllPostsQuery(mainUserId, { pollingInterval });
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
-    useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+    useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   const headingText = 'Explore';
 

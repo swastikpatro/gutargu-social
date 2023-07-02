@@ -19,11 +19,12 @@ import { FaFire } from 'react-icons/fa';
 
 import {
   useGetAllPostsQuery,
-  useGetSingleUserDetailsQuery,
+  useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
 import { sortByCreatedDate, sortByLikeCount } from '../utils/utils';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { pollingInterval } from '../constants';
 
 const sortTypesAvailable = [
   {
@@ -57,11 +58,13 @@ const sortTypesAvailable = [
 const HomePage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
-  const { data: allPosts, isLoading: isAllPostsLoading } =
-    useGetAllPostsQuery(mainUserId);
+  const { data: allPosts, isLoading: isAllPostsLoading } = useGetAllPostsQuery(
+    mainUserId,
+    { pollingInterval }
+  );
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
-    useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+    useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   const { onOpen, isOpen, onClose } = useDisclosure();
   const [activeSortType, setActiveSortType] = useState(sortTypesAvailable[0]);
@@ -79,8 +82,8 @@ const HomePage = () => {
   }
 
   const postsOfUserAndFollowing = allPosts.filter(
-    ({ isMainUserFollowing, author: { _id: authorId } }) =>
-      isMainUserFollowing || authorId === mainUserId
+    ({ author: { _id: authorId } }) =>
+      authorId === mainUserId || mainUserDetails.followingIds[authorId]
   );
 
   const sortedPosts = [...postsOfUserAndFollowing].sort(

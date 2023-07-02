@@ -1,35 +1,28 @@
 import {
   Box,
-  Button,
   Center,
   Heading,
-  Spacer,
   Spinner,
-  Link as ChakraLink,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
 import { useGetAllUsersQuery } from '../store/api';
-import UserHeader from './UserHeader';
+
 import { useSelector } from 'react-redux';
+import { pollingInterval } from '../constants';
+import FollowerCard from './FollowerCard';
 
 const FollowerSidebar = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
-  const { data: allUsers, isLoading: isAllUsersLoading } =
-    useGetAllUsersQuery(mainUserId);
+  const {
+    data: allUsers,
+    isLoading: isAllUsersLoading,
+    isFetching,
+  } = useGetAllUsersQuery(mainUserId, { pollingInterval });
 
   const suggestedUnFollowedUsers = allUsers?.filter(
-    ({ _id, isFollowingMainUser }) => !isFollowingMainUser && _id !== mainUserId
+    ({ _id, isMainUserFollowing }) => !isMainUserFollowing && _id !== mainUserId
   );
-
-  const followButtonStyle = {
-    bg: useColorModeValue('#222', '#fff'),
-    color: useColorModeValue('#fff', '#222'),
-    _hover: {
-      bg: useColorModeValue('gray.600', 'gray.300'),
-    },
-  };
 
   return (
     <Box
@@ -58,33 +51,7 @@ const FollowerSidebar = () => {
           </Center>
         ) : (
           suggestedUnFollowedUsers.map((user) => (
-            <Box
-              key={user._id}
-              as='article'
-              display='flex'
-              gap='.5rem'
-              alignItems='center'
-              mb={'1rem'}
-            >
-              <ChakraLink
-                as={Link}
-                to={`/profile/${user._id}`}
-                _hover={{ textDecoration: 'none' }}
-              >
-                <UserHeader user={user} />
-              </ChakraLink>
-
-              <Spacer />
-
-              <Button
-                {...followButtonStyle}
-                borderRadius='full'
-                letterSpacing='wider'
-                // isLoading
-              >
-                Follow
-              </Button>
-            </Box>
+            <FollowerCard user={user} key={user._id} />
           ))
         )}
       </Box>

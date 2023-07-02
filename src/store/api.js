@@ -29,8 +29,6 @@ export const api = createApi({
     getAllPosts: builder.query({
       query: () => '/post',
       transformResponse: (response, meta, mainUserId) => {
-        console.log({ response });
-
         return response.posts.map((post) => ({
           ...post,
           isLikedByMainUser: isIncludedInList({
@@ -82,6 +80,28 @@ export const api = createApi({
       },
     }),
 
+    getBookmarkPosts: builder.query({
+      query: () => `/post/bookmark`,
+      transformResponse: (response, meta, mainUserId) => {
+        return response.bookmarks.map((post) => ({
+          ...post,
+          isLikedByMainUser: isIncludedInList({
+            list: post.likes.likedBy,
+            idToBeChecked: mainUserId,
+          }),
+        }));
+      },
+
+      providesTags: (results) => {
+        return [
+          ...results.map(({ _id }) => ({
+            type: 'Post',
+            id: _id,
+          })),
+        ];
+      },
+    }),
+
     //  this single post has a property likes, but in likedBy there is object's of those users who liked it.. (thats why findIndex and not includes)
     getSinglePost: builder.query({
       query: ({ id: postId }) => `/post/${postId}`,
@@ -105,18 +125,14 @@ export const api = createApi({
       },
     }),
 
-    // isFollowingMainUser prop for calculating for suggested Users and isMainUserFollowing prop for Home paged Feed posts
+    // isMainUserFollowing prop for Home paged Feed posts
     getAllUsers: builder.query({
       query: () => '/user',
       transformResponse: (response, meta, mainUserId) => {
         return response.users.map((user) => ({
           ...user,
-          isFollowingMainUser: isIncludedInList({
-            list: user.followers,
-            idToBeChecked: mainUserId,
-          }),
           isMainUserFollowing: isIncludedInList({
-            list: user.following,
+            list: user.followers,
             idToBeChecked: mainUserId,
           }),
         }));
@@ -146,6 +162,7 @@ export const api = createApi({
             list: response.user.following,
             idToBeChecked: mainUserId,
           });
+
           return {
             ...response.user,
             isMainUserFollowing: isMainUserInFollowersList,
@@ -154,17 +171,20 @@ export const api = createApi({
         }
 
         const bookmarkedPostIds = {};
-        response.user.bookmarks.forEach((singlePost) => {
-          bookmarkedPostIds[singlePost._id] = true;
+        const idsOfUsersFollowingMainUser = {};
+
+        response.user.bookmarks.forEach((bookmarkId) => {
+          bookmarkedPostIds[bookmarkId] = true;
+        });
+
+        response.user.following.forEach(({ _id: userId }) => {
+          idsOfUsersFollowingMainUser[userId] = true;
         });
 
         return {
           ...response.user,
-          bookmarks: response.user.bookmarks.map((post) => ({
-            ...post,
-            isLikedByMainUser: post.likes.likedBy.includes(mainUserId),
-          })),
           bookmarkedPostIds,
+          followingIds: idsOfUsersFollowingMainUser,
           // response.user.bookmarks.reduce((acc, curr) => {
           //   acc[curr._id] = true;
           //   return acc;
@@ -222,7 +242,10 @@ export const api = createApi({
           const postToUpdateOptimistic = listOfPosts.find(
             (post) => post._id === postData._id
           );
-          if (postToUpdateOptimistic) {
+          if (
+            postToUpdateOptimistic &&
+            !postToUpdateOptimistic.isLikedByMainUser
+          ) {
             postToUpdateOptimistic.isLikedByMainUser = true;
             postToUpdateOptimistic.likes.likeCount += 1;
           }
@@ -247,17 +270,17 @@ export const api = createApi({
             'getSinglePost',
             { id: postData._id, mainUserId },
             (draft) => {
-              draft.isLikedByMainUser = true;
-              draft.likes.likeCount += 1;
+              if (!draft.isLikedByMainUser) {
+                draft.isLikedByMainUser = true;
+                draft.likes.likeCount += 1;
+              }
             }
           )
         );
 
         const likeResultForBookmarkPosts = dispatch(
-          api.util.updateQueryData(
-            'getSingleUserDetails',
-            { id: mainUserId, mainUserId },
-            (draft) => updatePostLike({ listOfPosts: draft.bookmarks })
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+            updatePostLike({ listOfPosts: draft })
           )
         );
 
@@ -270,6 +293,10 @@ export const api = createApi({
           likeResultForBookmarkPosts.undo();
         }
       },
+      invalidatesTags: (result, arg, { postData: { _id } }) => [
+        { type: 'Post', id: _id },
+        { type: 'Post', id: 'LIST' },
+      ],
     }),
 
     unlikePost: builder.mutation({
@@ -288,7 +315,10 @@ export const api = createApi({
           const postToUpdateOptimistic = listOfPosts.find(
             (post) => post._id === postData._id
           );
-          if (postToUpdateOptimistic) {
+          if (
+            postToUpdateOptimistic &&
+            postToUpdateOptimistic.isLikedByMainUser
+          ) {
             postToUpdateOptimistic.isLikedByMainUser = false;
             postToUpdateOptimistic.likes.likeCount -= 1;
           }
@@ -313,17 +343,17 @@ export const api = createApi({
             'getSinglePost',
             { id: postData._id, mainUserId },
             (draft) => {
-              draft.isLikedByMainUser = false;
-              draft.likes.likeCount -= 1;
+              if (draft.isLikedByMainUser) {
+                draft.isLikedByMainUser = false;
+                draft.likes.likeCount -= 1;
+              }
             }
           )
         );
 
         const unlikeResultForBookmarkPosts = dispatch(
-          api.util.updateQueryData(
-            'getSingleUserDetails',
-            { id: mainUserId, mainUserId },
-            (draft) => updatePostUnlike({ listOfPosts: draft.bookmarks })
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+            updatePostUnlike({ listOfPosts: draft })
           )
         );
 
@@ -336,11 +366,15 @@ export const api = createApi({
           unlikeResultForBookmarkPosts.undo();
         }
       },
+      invalidatesTags: (result, error, { postData: { _id } }) => [
+        { type: 'Post', id: _id },
+        { type: 'Post', id: 'LIST' },
+      ],
     }),
 
     bookmarkPost: builder.mutation({
       query: ({ postData: { _id: postIdToBookmark } }) => ({
-        url: `/post/bookmark/${postIdToBookmark}?=`,
+        url: `/post/bookmark/${postIdToBookmark}`,
         method: 'POST',
       }),
       onQueryStarted: async (
@@ -352,18 +386,22 @@ export const api = createApi({
             'getSingleUserDetails',
             { id: mainUserId, mainUserId },
             (draft) => {
-              if (draft.bookmarks) {
-                draft.bookmarks.push(postData);
-                draft.bookmarkedPostIds[postData._id] = true;
-              }
+              draft.bookmarkedPostIds[postData._id] = true;
             }
           )
+        );
+
+        const bookmarkResultForBookmarkPosts = dispatch(
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) => {
+            draft.push(postData);
+          })
         );
 
         try {
           await queryFulfilled;
         } catch (error) {
           bookmarkResult.undo();
+          bookmarkResultForBookmarkPosts.undo();
         }
       },
     }),
@@ -382,22 +420,61 @@ export const api = createApi({
             'getSingleUserDetails',
             { id: mainUserId, mainUserId },
             (draft) => {
-              if (draft.bookmarkedPostIds && draft.bookmarks) {
+              if (draft.bookmarkedPostIds) {
                 delete draft.bookmarkedPostIds[postIdToUnBookmark];
-                draft.bookmarks = draft.bookmarks.filter(
-                  ({ _id: singlePostId }) => singlePostId !== postIdToUnBookmark
-                );
               }
             }
           )
+        );
+
+        const unbookmarkResultForBookmarkPosts = dispatch(
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) => {
+            const postIndexToUnbookmarkOptimistic = draft.findIndex(
+              ({ _id }) => _id === postIdToUnBookmark
+            );
+            if (postIndexToUnbookmarkOptimistic !== -1) {
+              draft.splice(postIndexToUnbookmarkOptimistic, 1);
+            }
+          })
         );
 
         try {
           await queryFulfilled;
         } catch (error) {
           unbookmarkResult.undo();
+          unbookmarkResultForBookmarkPosts.undo;
         }
       },
+    }),
+    followUser: builder.mutation({
+      query: ({ followId }) => ({
+        url: `/user/follow`,
+        method: 'POST',
+        body: {
+          followId,
+        },
+      }),
+      invalidatesTags: (result, error, { followId, mainUserId }) => {
+        return [
+          { type: 'User', id: mainUserId },
+          { type: 'User', id: 'LIST' },
+          { type: 'User', id: followId },
+        ];
+      },
+    }),
+    unfollowUser: builder.mutation({
+      query: ({ unfollowId }) => ({
+        url: `/user/unfollow`,
+        method: 'POST',
+        body: {
+          unfollowId,
+        },
+      }),
+      invalidatesTags: (result, error, { unfollowId, mainUserId }) => [
+        { type: 'User', id: mainUserId },
+        { type: 'User', id: 'LIST' },
+        { type: 'User', id: unfollowId },
+      ],
     }),
   }),
 });
@@ -405,6 +482,7 @@ export const api = createApi({
 export const {
   useGetAllPostsQuery,
   useGetAllPostsOfAUserQuery,
+  useGetBookmarkPostsQuery,
   useGetSinglePostQuery,
   useGetAllUsersQuery,
   useGetSingleUserDetailsQuery,
@@ -415,4 +493,6 @@ export const {
   useUnlikePostMutation,
   useBookmarkPostMutation,
   useUnbookmarkPostMutation,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
 } = api;

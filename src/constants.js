@@ -27,3 +27,5 @@ export const MODAL_TEXT_TYPE = {
   DELETE_POST: 'delete post',
   LOGOUT: 'logout',
 };
+
+export const pollingInterval = 15000;

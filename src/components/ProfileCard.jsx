@@ -20,6 +20,7 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import ListPopover from './ListPopover';
 import ConfirmModal from './ConfirmModal';
 import { useSelector } from 'react-redux';
+import { useFollowUserMutation, useUnfollowUserMutation } from '../store/api';
 
 const ProfileCard = ({ singleUserDetails }) => {
   const followButtonStyle = {
@@ -29,7 +30,16 @@ const ProfileCard = ({ singleUserDetails }) => {
       bg: useColorModeValue('gray.600', 'gray.300'),
     },
   };
+
   const mainUserId = useSelector((store) => store.auth.mainUserId);
+
+  const [followUser, { isLoading: isFollowUserLoading }] =
+    useFollowUserMutation({
+      fixedCacheKey: `follow-user-${singleUserDetails._id}`,
+    });
+
+  const [unfollowUser, { isLoading: isUnfollowUserLoading }] =
+    useUnfollowUserMutation();
 
   const {
     isOpen: isConfirmModalOpen,
@@ -38,6 +48,7 @@ const ProfileCard = ({ singleUserDetails }) => {
   } = useDisclosure();
 
   const {
+    _id: singleUserId,
     firstName,
     lastName,
     username,
@@ -49,14 +60,32 @@ const ProfileCard = ({ singleUserDetails }) => {
     createdAt,
   } = singleUserDetails;
 
+  const handleFollowUnfollow = async () => {
+    try {
+      await (!singleUserDetails?.isMainUserFollowing
+        ? followUser({
+            followId: singleUserId,
+            mainUserId,
+          })
+        : unfollowUser({
+            unfollowId: singleUserId,
+            mainUserId,
+          })
+      ).unwrap();
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   const followButtonJSX = (
     <Button
       {...followButtonStyle}
       borderRadius='full'
       letterSpacing='wider'
-      // isLoading
+      onClick={handleFollowUnfollow}
+      isLoading={isFollowUserLoading || isUnfollowUserLoading}
     >
-      {singleUserDetails?.isMainUserInFollowersList ? 'Unfollow' : 'Follow'}
+      {singleUserDetails?.isMainUserFollowing ? 'Unfollow' : 'Follow'}
     </Button>
   );
 
