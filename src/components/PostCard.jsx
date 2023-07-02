@@ -20,8 +20,9 @@ import {
   Text,
   Container,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   BsBookmark,
   BsThreeDotsVertical,
@@ -31,10 +32,10 @@ import {
 } from 'react-icons/bs';
 // import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
-import { getCreatedDate } from '../utils/utils';
+import { getCreatedDate, showToast } from '../utils/utils';
 import PostModal from './PostModal';
 import ConfirmModal from './ConfirmModal';
-import { MODAL_TEXT_TYPE } from '../constants';
+import { DEBOUNCED_DELAY, MODAL_TEXT_TYPE, TOAST_TYPE } from '../constants';
 import {
   useLikePostMutation,
   useUnlikePostMutation,
@@ -42,31 +43,58 @@ import {
   useBookmarkPostMutation,
 } from '../store/api';
 import { useSelector } from 'react-redux';
+import { useEffect, useRef, useState } from 'react';
 
 const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
+  let isMountRef = useRef(null);
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
-  const [likePost, { isLoading: isLikePostLoading }] = useLikePostMutation();
-  const [unlikePost, { isLoading: isUnlikePostLoading }] =
-    useUnlikePostMutation();
+  // const []
 
-  const [bookmarkPost, { isLoading: isBookmarkPostLoading }] =
-    useBookmarkPostMutation();
-  const [unbookmarkPost, { isLoading: isUnbookmarkPostLoading }] =
-    useUnbookmarkPostMutation();
+  const [likePost, { isLoading: isLikeLoading }] = useLikePostMutation();
+  const [unlikePost, { isLoading: isUnlikeLoading }] = useUnlikePostMutation();
 
-  const isLikeUnlikeLoading = isLikePostLoading || isUnlikePostLoading;
-  const isBookmarkUnbookmarkLoading =
-    isBookmarkPostLoading || isUnbookmarkPostLoading;
+  const [bookmarkPost] = useBookmarkPostMutation();
+  const [unbookmarkPost] = useUnbookmarkPostMutation();
+
+  const [isBookmarkedLocal, setIsBookmarkedLocal] = useState(
+    isBookmarkedByMainUser
+  );
+
+  const toggleBookmark = () => {
+    setIsBookmarkedLocal(!isBookmarkedLocal);
+  };
+
+  useEffect(() => {
+    // if in the cache, post is bookmarked my main user, and also the isBookmarked state is true, then no need to update optimistically.
+    if (isBookmarkedByMainUser === isBookmarkedLocal) {
+      return;
+    }
+
+    let timer = setTimeout(() => {
+      console.log('Im called');
+      handleBookmarkUnbookmark();
+    }, DEBOUNCED_DELAY);
+
+    return () => {
+      // if timer is present and user navigates to different route so component gets out of view, so then, dont clear the timeout, let the last post request fly!
+
+      // else if timer is present and user toggles isBookmarkedLocal, clear the previous timer
+      if (!isMountRef.current) {
+        return;
+      }
+      clearTimeout(timer);
+    };
+  }, [isBookmarkedLocal]);
 
   const {
     _id: postId,
-    likes: { likeCount },
     author: { _id: authorId, firstName, lastName, username, pic },
     content,
     imageUrl,
     createdAt,
     isLikedByMainUser,
+    likes: { likeCount },
   } = postData;
 
   const {
@@ -81,21 +109,29 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
     onClose: onConfirmModalClose,
   } = useDisclosure();
 
+  const toast = useToast();
+
   const isPostByMainUser = mainUserId === authorId;
 
   const handleCopyToClipboard = () => {
-    // navigator.clipboard.writeText()
-    console.log('copy');
+    showToast({
+      toast,
+      type: TOAST_TYPE.Success,
+      message: 'Copied to clipboard',
+    });
+    navigator.clipboard.writeText(
+      `https://gutargu-social.vercel.app/post/${postId}`
+    );
   };
 
   const handleLikeUnlikePost = async () => {
     try {
-      await (isLikedByMainUser
-        ? unlikePost({
+      await (!isLikedByMainUser
+        ? likePost({
             postData,
             mainUserId,
           })
-        : likePost({
+        : unlikePost({
             postData,
             mainUserId,
           })
@@ -107,9 +143,9 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
 
   const handleBookmarkUnbookmark = async () => {
     try {
-      await (isBookmarkedByMainUser
-        ? unbookmarkPost({ postIdToUnBookmark: postId, mainUserId })
-        : bookmarkPost({ postData, mainUserId })
+      await (isBookmarkedLocal
+        ? bookmarkPost({ postData, mainUserId })
+        : unbookmarkPost({ postIdToUnBookmark: postId, mainUserId })
       ).unwrap();
     } catch (error) {
       console.log({ error: error.message });
@@ -117,7 +153,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   };
 
   return (
-    <Card boxShadow='md' cursor='default'>
+    <Card boxShadow='md' cursor='default' ref={isMountRef}>
       <CardHeader as='header' pb={{ base: '.5rem', md: '1rem' }}>
         <Flex>
           <ChakraLink
@@ -228,7 +264,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
 
           {!!imageUrl && !imageUrl.includes('.mp4') && (
             <Container
-              // border='2px solid red'
               w='full'
               minH='20rem'
               h='fit-content'
@@ -271,13 +306,12 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             aria-label='Like Unlike Toggle'
             cursor='pointer'
             borderRadius='50%'
-            // bg='transparent'
             fontSize={{ base: '1rem', md: '1.25rem' }}
             w='2rem'
             color={isLikedByMainUser ? 'red' : 'inherit'}
-            isDisabled={isLikeUnlikeLoading}
-            // _disabled={{ cursor: 'progress' }}
             _hover={{ bg: 'transparent' }}
+            isLoading={isLikeLoading || isUnlikeLoading}
+            _loading={{ color: '#fff' }}
           >
             <Icon as={isLikedByMainUser ? BsFillHeartFill : BsHeart} />
           </IconButton>
@@ -306,7 +340,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         </Box> */}
 
         <IconButton
-          onClick={handleBookmarkUnbookmark}
+          onClick={toggleBookmark}
           variant='ghost'
           aria-label='Like Unlike Toggle'
           cursor='pointer'
@@ -314,12 +348,10 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           bg='transparent'
           fontSize={{ base: '1rem', md: '1.25rem' }}
           w='2rem'
-          color={isBookmarkedByMainUser ? 'green' : 'inherit'}
-          isDisabled={isBookmarkUnbookmarkLoading}
-          // _disabled={{ cursor: 'progress' }}
+          color={isBookmarkedLocal ? 'green' : 'inherit'}
           _hover={{ bg: 'transparent' }}
         >
-          <Icon as={isBookmarkedByMainUser ? BsFillBookmarkFill : BsBookmark} />
+          <Icon as={isBookmarkedLocal ? BsFillBookmarkFill : BsBookmark} />
         </IconButton>
 
         <Spacer />
