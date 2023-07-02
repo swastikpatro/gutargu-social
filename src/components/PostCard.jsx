@@ -22,7 +22,7 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   BsBookmark,
   BsThreeDotsVertical,
@@ -49,8 +49,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   let isMountRef = useRef(null);
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
-  // const []
-
   const [likePost, { isLoading: isLikeLoading }] = useLikePostMutation();
   const [unlikePost, { isLoading: isUnlikeLoading }] = useUnlikePostMutation();
 
@@ -72,7 +70,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
     }
 
     let timer = setTimeout(() => {
-      console.log('Im called');
       handleBookmarkUnbookmark();
     }, DEBOUNCED_DELAY);
 

@@ -64,10 +64,6 @@ export const api = createApi({
       },
 
       providesTags: (results, error, { id, mainUserId }) => {
-        if (!results) {
-          return [];
-        }
-
         const resultsIds = results.map(({ _id }) => ({
           type: 'Post',
           id: _id,
@@ -118,10 +114,11 @@ export const api = createApi({
       },
       // mainUserId and id are args to the query
       providesTags: (results, error, arg) => {
-        if (!results) {
-          return [];
-        }
-        return [{ type: 'Post', id: arg.id }];
+        console.log(results._id);
+        return [
+          { type: 'Post', id: results._id },
+          { type: 'SinglePost', id: results._id },
+        ];
       },
     }),
 
@@ -234,66 +231,66 @@ export const api = createApi({
           postId: postIdToLike,
         },
       }),
-      onQueryStarted: async (
-        { postData, mainUserId },
-        { dispatch, queryFulfilled }
-      ) => {
-        const updatePostLike = ({ listOfPosts }) => {
-          const postToUpdateOptimistic = listOfPosts.find(
-            (post) => post._id === postData._id
-          );
-          if (
-            postToUpdateOptimistic &&
-            !postToUpdateOptimistic.isLikedByMainUser
-          ) {
-            postToUpdateOptimistic.isLikedByMainUser = true;
-            postToUpdateOptimistic.likes.likeCount += 1;
-          }
-        };
+      // async onQueryStarted(
+      //   { postData, mainUserId },
+      //   { dispatch, queryFulfilled }
+      // ) {
+      //   const updatePostLike = ({ listOfPosts }) => {
+      //     const postToUpdateOptimistic = listOfPosts.find(
+      //       (post) => post._id === postData._id
+      //     );
+      //     if (
+      //       postToUpdateOptimistic &&
+      //       !postToUpdateOptimistic.isLikedByMainUser
+      //     ) {
+      //       postToUpdateOptimistic.isLikedByMainUser = true;
+      //       postToUpdateOptimistic.likes.likeCount += 1;
+      //     }
+      //   };
 
-        const likeResultForAllPosts = dispatch(
-          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
-            updatePostLike({ listOfPosts: draft })
-          )
-        );
+      //   const likeResultForAllPosts = dispatch(
+      //     api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+      //       updatePostLike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        const likeResultForAllPostsOfAUser = dispatch(
-          api.util.updateQueryData(
-            'getAllPostsOfAUser',
-            { id: postData.author._id, mainUserId },
-            (draft) => updatePostLike({ listOfPosts: draft })
-          )
-        );
+      //   const likeResultForAllPostsOfAUser = dispatch(
+      //     api.util.updateQueryData(
+      //       'getAllPostsOfAUser',
+      //       { id: postData.author._id, mainUserId },
+      //       (draft) => updatePostLike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        const likeResultForSinglePost = dispatch(
-          api.util.updateQueryData(
-            'getSinglePost',
-            { id: postData._id, mainUserId },
-            (draft) => {
-              if (!draft.isLikedByMainUser) {
-                draft.isLikedByMainUser = true;
-                draft.likes.likeCount += 1;
-              }
-            }
-          )
-        );
+      //   const likeResultForSinglePost = dispatch(
+      //     api.util.updateQueryData(
+      //       'getSinglePost',
+      //       { id: postData._id, mainUserId },
+      //       (draft) => {
+      //         if (!draft.isLikedByMainUser) {
+      //           draft.isLikedByMainUser = true;
+      //           draft.likes.likeCount += 1;
+      //         }
+      //       }
+      //     )
+      //   );
 
-        const likeResultForBookmarkPosts = dispatch(
-          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
-            updatePostLike({ listOfPosts: draft })
-          )
-        );
+      //   const likeResultForBookmarkPosts = dispatch(
+      //     api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+      //       updatePostLike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        try {
-          await queryFulfilled;
-        } catch (error) {
-          likeResultForAllPosts.undo();
-          likeResultForAllPostsOfAUser.undo();
-          likeResultForSinglePost.undo();
-          likeResultForBookmarkPosts.undo();
-        }
-      },
-      invalidatesTags: (result, arg, { postData: { _id } }) => [
+      //   try {
+      //     await queryFulfilled;
+      //   } catch (error) {
+      //     likeResultForAllPosts.undo();
+      //     likeResultForAllPostsOfAUser.undo();
+      //     likeResultForSinglePost.undo();
+      //     likeResultForBookmarkPosts.undo();
+      //   }
+      // },
+      invalidatesTags: (result, error, { postData: { _id } }) => [
         { type: 'Post', id: _id },
         { type: 'Post', id: 'LIST' },
       ],
@@ -307,67 +304,67 @@ export const api = createApi({
           postId: postIdToUnlike,
         },
       }),
-      onQueryStarted: async (
-        { postData, mainUserId },
-        { dispatch, queryFulfilled }
-      ) => {
-        const updatePostUnlike = ({ listOfPosts }) => {
-          const postToUpdateOptimistic = listOfPosts.find(
-            (post) => post._id === postData._id
-          );
-          if (
-            postToUpdateOptimistic &&
-            postToUpdateOptimistic.isLikedByMainUser
-          ) {
-            postToUpdateOptimistic.isLikedByMainUser = false;
-            postToUpdateOptimistic.likes.likeCount -= 1;
-          }
-        };
+      // async onQueryStarted(
+      //   { postData, mainUserId },
+      //   { dispatch, queryFulfilled }
+      // ) {
+      //   const updatePostUnlike = ({ listOfPosts }) => {
+      //     const postToUpdateOptimistic = listOfPosts.find(
+      //       (post) => post._id === postData._id
+      //     );
+      //     if (
+      //       postToUpdateOptimistic &&
+      //       postToUpdateOptimistic.isLikedByMainUser
+      //     ) {
+      //       postToUpdateOptimistic.isLikedByMainUser = false;
+      //       postToUpdateOptimistic.likes.likeCount -= 1;
+      //     }
+      //   };
 
-        const unlikeResultForAllPosts = dispatch(
-          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
-            updatePostUnlike({ listOfPosts: draft })
-          )
-        );
+      //   const unlikeResultForAllPosts = dispatch(
+      //     api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+      //       updatePostUnlike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        const unlikeResultForAllPostsOfAUser = dispatch(
-          api.util.updateQueryData(
-            'getAllPostsOfAUser',
-            { id: postData.author._id, mainUserId },
-            (draft) => updatePostUnlike({ listOfPosts: draft })
-          )
-        );
+      //   const unlikeResultForAllPostsOfAUser = dispatch(
+      //     api.util.updateQueryData(
+      //       'getAllPostsOfAUser',
+      //       { id: postData.author._id, mainUserId },
+      //       (draft) => updatePostUnlike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        const unlikeResultForSinglePost = dispatch(
-          api.util.updateQueryData(
-            'getSinglePost',
-            { id: postData._id, mainUserId },
-            (draft) => {
-              if (draft.isLikedByMainUser) {
-                draft.isLikedByMainUser = false;
-                draft.likes.likeCount -= 1;
-              }
-            }
-          )
-        );
+      //   const unlikeResultForSinglePost = dispatch(
+      //     api.util.updateQueryData(
+      //       'getSinglePost',
+      //       { id: postData._id, mainUserId },
+      //       (draft) => {
+      //         if (draft.isLikedByMainUser) {
+      //           draft.isLikedByMainUser = false;
+      //           draft.likes.likeCount -= 1;
+      //         }
+      //       }
+      //     )
+      //   );
 
-        const unlikeResultForBookmarkPosts = dispatch(
-          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
-            updatePostUnlike({ listOfPosts: draft })
-          )
-        );
+      //   const unlikeResultForBookmarkPosts = dispatch(
+      //     api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+      //       updatePostUnlike({ listOfPosts: draft })
+      //     )
+      //   );
 
-        try {
-          await queryFulfilled;
-        } catch (error) {
-          unlikeResultForAllPosts.undo();
-          unlikeResultForAllPostsOfAUser.undo();
-          unlikeResultForSinglePost.undo();
-          unlikeResultForBookmarkPosts.undo();
-        }
-      },
-      invalidatesTags: (result, error, { postData: { _id } }) => [
-        { type: 'Post', id: _id },
+      //   try {
+      //     await queryFulfilled;
+      //   } catch (error) {
+      //     unlikeResultForAllPosts.undo();
+      //     unlikeResultForAllPostsOfAUser.undo();
+      //     unlikeResultForSinglePost.undo();
+      //     unlikeResultForBookmarkPosts.undo();
+      //   }
+      // },
+      invalidatesTags: (result, error, arg) => [
+        { type: 'Post', id: arg.postData._id },
         { type: 'Post', id: 'LIST' },
       ],
     }),
