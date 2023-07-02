@@ -8,7 +8,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
-import { useGetSingleUserDetailsQuery } from '../store/api';
+import { useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery } from '../store/api';
 import { useSelector } from 'react-redux';
 
 const ProfileLink = () => {
@@ -18,7 +18,7 @@ const ProfileLink = () => {
     data: mainUser,
     isLoading: isMainUserLoading,
     // error,
-  } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+  } = useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   if (isMainUserLoading) {
     return (

@@ -1,11 +1,12 @@
 import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
 import {
   useGetAllPostsQuery,
-  useGetSingleUserDetailsQuery,
+  useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
 import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { pollingInterval } from '../constants';
 
 const LikedPostsPage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -13,10 +14,10 @@ const LikedPostsPage = () => {
     data: allPosts,
     isLoading: isAllPostsLoading,
     // isError,
-  } = useGetAllPostsQuery(mainUserId);
+  } = useGetAllPostsQuery(mainUserId, { pollingInterval });
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
-    useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+    useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   const headingText = 'Liked Posts';
 
@@ -30,7 +31,6 @@ const LikedPostsPage = () => {
     );
   }
 
-  // console.log(allPosts);
   const likedPostsByMainUser = allPosts.filter(
     ({ isLikedByMainUser }) => isLikedByMainUser
   );

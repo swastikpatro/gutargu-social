@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PostCard, PostsContainer as PostContainer } from '../components';
 import {
   useGetSinglePostQuery,
-  useGetSingleUserDetailsQuery,
+  useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
 import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
@@ -14,11 +14,12 @@ const SinglePostPage = () => {
   const {
     data: singlePost,
     isLoading: isSinglePostLoading,
+    isFetching: isSinglePostFetching,
     isError: isPostError,
   } = useGetSinglePostQuery({ mainUserId, id: postId });
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
-    useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+    useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   const headingText = 'Single Post Page';
 
@@ -64,6 +65,27 @@ const SinglePostPage = () => {
       </PostContainer>
     );
   }
+
+  // if (isSinglePostFetching) {
+  //   console.log({ singlePost });
+  //   return (
+  //     <PostContainer headingText={headingText}>
+  //       <PostCard
+  //         key={'10'}
+  //         postData={singlePost}
+  //         isBookmarkedByMainUser={
+  //           mainUserDetails.bookmarkedPostIds[singlePost._id] || false
+  //         }
+  //       />
+  //       {/* <PageLoader /> */}
+  //     </PostContainer>
+  //   );
+  // }
+  // if (isSinglePostFetching) {
+  //   console.log('fetching again');
+  // }
+
+  // console.log('displaying ui');
 
   return (
     <PostContainer headingText={headingText}>

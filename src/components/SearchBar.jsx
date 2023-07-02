@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useGetAllUsersQuery } from '../store/api';
 import { Link } from 'react-router-dom';
-import { DEBOUNCED_DELAY } from '../constants';
+import { DEBOUNCED_DELAY, pollingInterval } from '../constants';
 import { filterOnFirstLastAndUserName } from '../utils/utils';
 import UserHeader from './UserHeader';
 import { useSelector } from 'react-redux';
@@ -34,8 +34,10 @@ const SearchBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchRef = useRef(null);
 
-  const { data: allUsers, isLoading: isUsersLoading } =
-    useGetAllUsersQuery(mainUserId);
+  const { data: allUsers, isLoading: isUsersLoading } = useGetAllUsersQuery(
+    mainUserId,
+    { pollingInterval }
+  );
 
   const handleSearchChange = (e) => {
     const userTypedText = e.target.value;

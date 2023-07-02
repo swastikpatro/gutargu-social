@@ -14,6 +14,7 @@ import {
   Heading,
 } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
+import { pollingInterval } from '../constants';
 
 const ProfilePage = () => {
   const headingText = 'User Profile Page';
@@ -22,6 +23,7 @@ const ProfilePage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   // for bookmarks
+  // aka useGetMainUserDetailsQuery
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
     useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
 
@@ -30,7 +32,10 @@ const ProfilePage = () => {
     isLoading: isPostsLoading,
     isFetching: isPostsFetching,
     isError: isPostsError,
-  } = useGetAllPostsOfAUserQuery({ mainUserId, id: profileIdFromParam });
+  } = useGetAllPostsOfAUserQuery(
+    { mainUserId, id: profileIdFromParam },
+    { pollingInterval }
+  );
 
   const {
     data: singleUserDetails,
@@ -78,23 +83,11 @@ const ProfilePage = () => {
   if (
     isPostsLoading ||
     isMainUserLoading ||
-    isUserDetailsLoading ||
-    isUserDetailsFetching
+    isUserDetailsLoading
+    // isUserDetailsFetching
   ) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
-      </PostsContainer>
-    );
-  }
-
-  if (isPostsFetching) {
-    return (
-      <PostsContainer headingText={headingText}>
-        <ProfileCard singleUserDetails={singleUserDetails} />
-
         <Center>
           <Spinner />
         </Center>

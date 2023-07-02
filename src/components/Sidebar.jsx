@@ -18,7 +18,7 @@ import { IoBookmarkSharp } from 'react-icons/io5';
 import { AiFillHeart, AiOutlinePlus } from 'react-icons/ai';
 import PostModal from './PostModal';
 import { ProfileLink } from '.';
-import { useGetSingleUserDetailsQuery } from '../store/api';
+import { useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery } from '../store/api';
 import { useSelector } from 'react-redux';
 
 const sidebarLinks = [
@@ -61,7 +61,7 @@ const Sidebar = () => {
     data: mainUserDetails,
     isLoading: isMainUserLoading,
     // error,
-  } = useGetSingleUserDetailsQuery({ mainUserId, id: mainUserId });
+  } = useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
   return (
     <List
