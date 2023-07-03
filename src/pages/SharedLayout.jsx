@@ -3,9 +3,13 @@ import { FollowerSidebar, Navbar, Sidebar } from '../components';
 import { Box, Container, useColorModeValue } from '@chakra-ui/react';
 import { sectionCenterStyles } from '../styles/GlobalStyles';
 import { useEffect } from 'react';
+import { useGetAllPostsQuery, useGetAllUsersQuery } from '../store/api';
+import { useSelector } from 'react-redux';
+import { pollingInterval } from '../constants';
 
 const SharedLayout = () => {
   const location = useLocation();
+  const mainUserId = useSelector((store) => store.auth.mainUserId);
 
   const colorMode = {
     bgSidebar: useColorModeValue('#fff', 'gray.800'),
@@ -16,11 +20,17 @@ const SharedLayout = () => {
     window.scrollTo(0, 0);
   }, [location]);
 
+  // polling
+  useGetAllPostsQuery(mainUserId, { pollingInterval });
+
+  useGetAllUsersQuery(mainUserId, { pollingInterval });
+
   return (
     <>
       <Navbar />
       <Container
         sx={sectionCenterStyles}
+        minH='100dvh'
         display='grid'
         gridTemplateColumns={{
           base: '1fr',
@@ -30,11 +40,11 @@ const SharedLayout = () => {
         }}
       >
         <Box
-          pos={{ base: 'fixed', md: 'sticky' }}
-          top={{ base: 'calc(100vh - 4rem)', md: '6rem' }}
+          pos={{ base: 'sticky' }}
+          top={{ base: 'calc(100dvh - 3.9rem)', md: '6rem' }}
           left={{ base: 0 }}
-          w={{ base: '100vw', md: '80px', lg: '80px', xl: '250px' }}
-          h={{ base: '4rem', md: 'calc(100vh - 6rem)' }}
+          w={{ base: '100%', md: '80px', lg: '80px', xl: '250px' }}
+          h={{ base: '4rem', md: 'calc(100dvh - 6rem)' }}
           // border='2px solid red'
           bg={colorMode.bgSidebar}
           zIndex={11}
@@ -43,7 +53,8 @@ const SharedLayout = () => {
         </Box>
 
         <Box
-          minH='calc(100vh - 5rem)'
+          minH='calc(100dvh - 5rem)'
+          mt={{ base: '-5rem', md: 0 }}
           pt='1rem'
           pb={{ base: '5rem', md: '3rem' }}
           as='section'
