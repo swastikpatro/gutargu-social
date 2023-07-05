@@ -37,7 +37,7 @@ export const api = createApi({
           }),
         }));
       },
-      providesTags: (results) => {
+      providesTags: (results, error, mainUserId) => {
         return results
           ? [
               { type: 'Post', id: 'LIST' },
@@ -114,11 +114,7 @@ export const api = createApi({
       },
       // mainUserId and id are args to the query
       providesTags: (results, error, arg) => {
-        console.log(results._id);
-        return [
-          { type: 'Post', id: results._id },
-          { type: 'SinglePost', id: results._id },
-        ];
+        return [{ type: 'Post', id: results._id }];
       },
     }),
 
@@ -182,10 +178,6 @@ export const api = createApi({
           ...response.user,
           bookmarkedPostIds,
           followingIds: idsOfUsersFollowingMainUser,
-          // response.user.bookmarks.reduce((acc, curr) => {
-          //   acc[curr._id] = true;
-          //   return acc;
-          // }, {}),
         };
       },
       providesTags: (result, error, arg) => {
@@ -445,7 +437,7 @@ export const api = createApi({
     }),
     followUser: builder.mutation({
       query: ({ followId }) => ({
-        url: `/user/follow`,
+        url: '/user/follow',
         method: 'POST',
         body: {
           followId,
@@ -461,7 +453,7 @@ export const api = createApi({
     }),
     unfollowUser: builder.mutation({
       query: ({ unfollowId }) => ({
-        url: `/user/unfollow`,
+        url: '/user/unfollow',
         method: 'POST',
         body: {
           unfollowId,
@@ -471,6 +463,17 @@ export const api = createApi({
         { type: 'User', id: mainUserId },
         { type: 'User', id: 'LIST' },
         { type: 'User', id: unfollowId },
+      ],
+    }),
+
+    updateUser: builder.mutation({
+      query: ({ mainUserId, ...body }) => ({
+        url: '/user/update',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (result, error, body) => [
+        { type: 'User', id: body.mainUserId },
       ],
     }),
   }),
@@ -492,4 +495,5 @@ export const {
   useUnbookmarkPostMutation,
   useFollowUserMutation,
   useUnfollowUserMutation,
+  useUpdateUserMutation,
 } = api;

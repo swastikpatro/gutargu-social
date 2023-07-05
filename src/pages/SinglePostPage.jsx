@@ -6,6 +6,7 @@ import {
 } from '../store/api';
 import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
+import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
 
 const SinglePostPage = () => {
   const { postId } = useParams();
@@ -87,10 +88,15 @@ const SinglePostPage = () => {
 
   // console.log('displaying ui');
 
+  const [singlePostWithUpdatedDetails] = getUpdatedPostsWithMainUserDetails({
+    posts: [singlePost],
+    mainUserDetails,
+  });
+
   return (
     <PostContainer headingText={headingText}>
       <PostCard
-        postData={singlePost}
+        postData={singlePostWithUpdatedDetails}
         isBookmarkedByMainUser={
           mainUserDetails.bookmarkedPostIds[singlePost._id] || false
         }

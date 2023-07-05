@@ -1,4 +1,4 @@
-import { URL } from '../constants';
+import { TOAST_TYPE, URL } from '../constants';
 
 export const wait = (delay = 500) =>
   new Promise((res) => setTimeout(res, delay));
@@ -27,12 +27,42 @@ export const loginService = async ({ email, password }) => {
   return { message, token };
 };
 
-export const getCreatedDate = (dateString) =>
+// export const getCreatedDate = (dateString) =>
+//   new Date(dateString).toLocaleDateString('en-IN', {
+//     month: 'long',
+//     day: 'numeric',
+//     year: 'numeric',
+//   });
+
+export const getFormattedDate = (dateString) =>
   new Date(dateString).toLocaleDateString('en-IN', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
+
+export const getCreatedDate = (date) => {
+  const pastDate = new Date(date);
+  const timeDifference = new Date() - pastDate;
+  if (timeDifference < 86400000) {
+    // 86400000 milliseconds = 1 day
+    const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
+    const minutesDifference = Math.floor((timeDifference / (1000 * 60)) % 60);
+
+    if (hoursDifference === 0) {
+      return `${minutesDifference}m ago`;
+    } else {
+      return `${hoursDifference}h ago`;
+    }
+  } else {
+    const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    if (daysDifference > 30) {
+      return getFormattedDate(date);
+    } else {
+      return `${daysDifference}d ago`;
+    }
+  }
+};
 
 export const sortByLikeCount = (
   { likes: { likeCount: a } },
@@ -86,3 +116,24 @@ export const hasEqualProperties = ({ stateData, dataObj }) => {
     return stateKey === dataObj[key];
   });
 };
+
+export const getUpdatedPostsWithMainUserDetails = ({
+  posts = [],
+  mainUserDetails,
+}) => {
+  return posts.map((singlePost) => {
+    if (singlePost.author._id === mainUserDetails?._id) {
+      return {
+        ...singlePost,
+        author: Object.keys(singlePost.author).reduce((acc, currentKey) => {
+          acc[currentKey] = mainUserDetails[currentKey];
+          return acc;
+        }, {}),
+      };
+    } else {
+      return singlePost;
+    }
+  });
+};
+
+export const getFollowCacheKey = (userId) => `follow-user-${userId}`;

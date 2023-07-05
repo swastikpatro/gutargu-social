@@ -7,6 +7,7 @@ import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { pollingInterval } from '../constants';
+import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
 
 const LikedPostsPage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -34,6 +35,11 @@ const LikedPostsPage = () => {
   const likedPostsByMainUser = allPosts.filter(
     ({ isLikedByMainUser }) => isLikedByMainUser
   );
+
+  const likedPostsWithUpdatedDetails = getUpdatedPostsWithMainUserDetails({
+    posts: likedPostsByMainUser,
+    mainUserDetails,
+  });
 
   if (likedPostsByMainUser.length < 1) {
     return (
@@ -70,7 +76,7 @@ const LikedPostsPage = () => {
 
   return (
     <PostsContainer headingText={headingText}>
-      {likedPostsByMainUser.map((singlePost) => (
+      {likedPostsWithUpdatedDetails.map((singlePost) => (
         <PostCard
           key={singlePost._id}
           postData={singlePost}
