@@ -30,7 +30,7 @@ const SharedLayout = () => {
       <Navbar />
       <Container
         sx={sectionCenterStyles}
-        minH='100dvh'
+        minH={{ md: '100dvh' }}
         display='grid'
         gridTemplateColumns={{
           base: '1fr',
@@ -53,8 +53,8 @@ const SharedLayout = () => {
         </Box>
 
         <Box
-          minH='calc(100dvh - 5rem)'
-          mt={{ base: '-5rem', md: 0 }}
+          minH={{ base: 'calc(100dvh - 5rem)' }}
+          mt={{ base: '-4rem', md: 0 }}
           pt='1rem'
           pb={{ base: '5rem', md: '3rem' }}
           as='section'

@@ -4,15 +4,22 @@ import {
   Link as ChakraLink,
   Spacer,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
+
 import { Link } from 'react-router-dom';
-import React from 'react';
-import UserHeader from './UserHeader';
-import { useFollowUserMutation } from '../store/api';
+
 import { useSelector } from 'react-redux';
+
+//  from internal files
+import { useFollowUserMutation } from '../store/api';
+import UserHeader from './UserHeader';
+import { getFollowCacheKey, showToast } from '../utils/utils';
+import { TOAST_TYPE } from '../constants';
 
 const FollowerCard = ({ user }) => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
+  const toast = useToast();
 
   const followButtonStyle = {
     bg: useColorModeValue('#222', '#fff'),
@@ -24,17 +31,20 @@ const FollowerCard = ({ user }) => {
 
   const [followUser, { isLoading: isFollowUserLoading }] =
     useFollowUserMutation({
-      fixedCacheKey: `follow-user-${user._id}`,
+      fixedCacheKey: getFollowCacheKey(user._id),
     });
 
   const handleFollowUser = async () => {
     try {
-      await followUser({
+      const { message } = await followUser({
         followId: user._id,
         mainUserId,
       }).unwrap();
+
+      showToast({ toast, type: TOAST_TYPE.Success, message });
     } catch (error) {
       console.error(error.message);
+      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
     }
   };
 
@@ -63,6 +73,7 @@ const FollowerCard = ({ user }) => {
         letterSpacing='wider'
         onClick={handleFollowUser}
         isLoading={isFollowUserLoading}
+        _loading={{ cursor: 'pointer' }}
       >
         Follow
       </Button>

@@ -36,7 +36,6 @@ import {
 import { useSelector } from 'react-redux';
 
 // react icons
-import { RxAvatar } from 'react-icons/rx';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import {
   BsBookmark,
@@ -240,13 +239,13 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
                   onClick={onPostModalOpen}
                   p='1rem'
                   fontSize={'1rem'}
-                  icon={<FaEdit fontSize={'1.15rem'} color='#fff' />}
+                  icon={<FaEdit fontSize={'1.15rem'} />}
                 >
                   Edit
                 </MenuItem>
 
                 <MenuItem
-                  icon={<FaTrashAlt fontSize={'1.15rem'} color='#fff' />}
+                  icon={<FaTrashAlt fontSize={'1.15rem'} />}
                   onClick={onConfirmModalOpen}
                   p='1rem'
                   fontSize={'1rem'}
@@ -259,7 +258,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         </Flex>
       </CardHeader>
 
-      <CardBody pt='0' as='main'>
+      <CardBody pt='0' pb='1rem' as='main'>
         {isPostModalOpen && (
           <PostModal
             isOpen={isPostModalOpen}
@@ -290,28 +289,30 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             {content}
           </Text>
 
-          {!!imageUrl && !imageUrl.includes('.mp4') && (
+          {!!imageUrl && (
             <Container
               w='full'
-              minH='20rem'
+              // minH='20rem'
               h='fit-content'
               mt={'.75rem'}
               p='0'
               borderRadius='md'
               overflow={'hidden'}
             >
-              <Image
-                objectFit='cover'
-                w='full'
-                h='full'
-                bg={'#fff'}
-                src={imageUrl}
-                alt='post image'
-              />
+              {!imageUrl.includes('.mp4') ? (
+                <Image
+                  objectFit='cover'
+                  w='full'
+                  h='full'
+                  bg={'#fff'}
+                  src={imageUrl}
+                  alt='post image'
+                />
+              ) : (
+                <video controls src={imageUrl} />
+              )}
             </Container>
           )}
-
-          {imageUrl.includes('.mp4') && <video controls src={imageUrl} />}
         </ChakraLink>
       </CardBody>
 

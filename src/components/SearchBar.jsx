@@ -117,6 +117,7 @@ const SearchBar = () => {
         initialFocusRef={searchRef}
         isOpen={isOpen && !!trimmedSearchText}
         placement='bottom'
+        isLazy
       >
         <PopoverTrigger>
           <InputGroup>

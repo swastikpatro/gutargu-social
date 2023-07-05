@@ -28,7 +28,7 @@ const Navbar = () => {
       as='nav'
       boxShadow='lg'
       pos='sticky'
-      top='0'
+      top='-.1rem'
       left='0'
       h={{ base: '4.5rem', md: '5rem' }}
       zIndex={11}
