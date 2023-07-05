@@ -8,13 +8,18 @@ import {
   PopoverTrigger,
   Text,
   Link as ChakraLink,
+  useDisclosure,
 } from '@chakra-ui/react';
+
 import { Link } from 'react-router-dom';
+
 import UserHeader from './UserHeader';
 
 const ListPopover = ({ usersList, type }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
-    <Popover isLazy>
+    <Popover isLazy isOpen={isOpen} onClose={onClose}>
       <PopoverTrigger>
         <Text
           letterSpacing='wider'
@@ -22,6 +27,7 @@ const ListPopover = ({ usersList, type }) => {
           fontWeight='semibold'
           cursor={'pointer'}
           textDecoration={'underline'}
+          onClick={onOpen}
         >
           {usersList.length} {type}
         </Text>
@@ -46,6 +52,7 @@ const ListPopover = ({ usersList, type }) => {
                     as={Link}
                     to={`/profile/${user._id}`}
                     _hover={{ textDecoration: 'none' }}
+                    onClick={onClose}
                   >
                     <UserHeader user={user} />
                   </ChakraLink>

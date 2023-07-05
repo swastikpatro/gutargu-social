@@ -57,14 +57,14 @@ const PostModal = ({
         }
   );
 
-  let isPostButtonDisable = !inputs.content && !inputs.imageUrl;
+  let isPostNotToUpdate = !inputs.content && !inputs.imageUrl;
   if (isEditingAndMainUserData) {
-    // if the state has similar properties to isEditingAndMainUserData or (there is no content and image at a single time on the screen), during this post btn is disabled.
-    isPostButtonDisable =
+    // if the state has similar properties to isEditingAndMainUserData or (there is no content and image at a single time on the screen), just close modal
+    isPostNotToUpdate =
       hasEqualProperties({
         stateData: inputs,
         dataObj: isEditingAndMainUserData,
-      }) || isPostButtonDisable;
+      }) || isPostNotToUpdate;
   }
 
   const handleInputs = (e) => {
@@ -84,6 +84,12 @@ const PostModal = ({
       });
       return;
     }
+
+    if (isPostNotToUpdate) {
+      onClose();
+      return;
+    }
+
     try {
       let message = '';
       if (isAddingAndMainUserData) {
@@ -98,6 +104,7 @@ const PostModal = ({
       }
 
       showToast({ toast, type: TOAST_TYPE.Success, message });
+
       onClose();
     } catch (error) {
       console.log({ error: error.message });
@@ -108,13 +115,12 @@ const PostModal = ({
   return (
     <Modal
       initialFocusRef={textareaRef}
-      isCentered
       closeOnOverlayClick={!isSubmitting}
       isOpen={isOpen}
       onClose={onClose}
     >
       <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(8px)' />
-      <ModalContent>
+      <ModalContent w='90vw' maxW='400px'>
         <ModalHeader>
           {isAddingAndMainUserData ? 'New' : 'Edit'} Post
         </ModalHeader>
@@ -178,7 +184,6 @@ const PostModal = ({
               onClick={handleSubmit}
               _loading={{ cursor: 'pointer' }}
               isLoading={isSubmitting}
-              isDisabled={isPostButtonDisable}
             >
               {!!isAddingAndMainUserData && 'Post'}
               {!!isEditingAndMainUserData && 'Update'}

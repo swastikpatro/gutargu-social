@@ -7,6 +7,7 @@ import {
 import { pollingInterval } from '../constants';
 
 import { useSelector } from 'react-redux';
+import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
 
 const ExplorePage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -19,6 +20,12 @@ const ExplorePage = () => {
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
     useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
+
+  // posts of mainUser is updated
+  const updatedAllPosts = getUpdatedPostsWithMainUserDetails({
+    posts: allPosts,
+    mainUserDetails,
+  });
 
   const headingText = 'Explore';
 
@@ -38,7 +45,7 @@ const ExplorePage = () => {
 
   return (
     <PostsContainer headingText={headingText}>
-      {allPosts.map((singlePost) => (
+      {updatedAllPosts.map((singlePost) => (
         <PostCard
           key={singlePost._id}
           postData={singlePost}

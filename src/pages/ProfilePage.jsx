@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
 import { pollingInterval } from '../constants';
+import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
 
 const ProfilePage = () => {
   const headingText = 'User Profile Page';
@@ -42,6 +43,11 @@ const ProfilePage = () => {
     isLoading: isUserDetailsLoading,
     isFetching: isUserDetailsFetching,
   } = useGetSingleUserDetailsQuery({ mainUserId, id: profileIdFromParam });
+
+  const userPostsWithUpdatedDetails = getUpdatedPostsWithMainUserDetails({
+    posts: allUserPosts,
+    mainUserDetails,
+  });
 
   const exploreLinkJSX = (
     <Center>
@@ -135,7 +141,7 @@ const ProfilePage = () => {
         >
           Posts
         </Heading>
-        {allUserPosts.map((singlePost) => (
+        {userPostsWithUpdatedDetails.map((singlePost) => (
           <PostCard
             key={singlePost._id}
             postData={singlePost}

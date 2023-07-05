@@ -10,17 +10,33 @@ import {
   Badge,
   Link as ChakraLink,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
+
+import { HiOutlineLogout } from 'react-icons/hi';
+import { FaCalendarAlt, FaEdit } from 'react-icons/fa';
+
 import { Link } from 'react-router-dom';
 
-import { getCreatedDate } from '../utils/utils';
-import { MODAL_TEXT_TYPE } from '../constants';
-import { HiOutlineLogout } from 'react-icons/hi';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { useState } from 'react';
+
+import { useDispatch, useSelector } from 'react-redux';
+
+// internal imports
+import {
+  getFollowCacheKey,
+  getFormattedDate,
+  showToast,
+  wait,
+} from '../utils/utils';
+import { MODAL_TEXT_TYPE, TOAST_TYPE } from '../constants';
+
 import ListPopover from './ListPopover';
 import ConfirmModal from './ConfirmModal';
-import { useSelector } from 'react-redux';
+import EditProfileModal from './EditProfileModal';
+
 import { useFollowUserMutation, useUnfollowUserMutation } from '../store/api';
+import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
 
 const ProfileCard = ({ singleUserDetails }) => {
   const followButtonStyle = {
@@ -32,19 +48,28 @@ const ProfileCard = ({ singleUserDetails }) => {
   };
 
   const mainUserId = useSelector((store) => store.auth.mainUserId);
+  const dispatch = useDispatch();
 
   const [followUser, { isLoading: isFollowUserLoading }] =
     useFollowUserMutation({
-      fixedCacheKey: `follow-user-${singleUserDetails._id}`,
+      fixedCacheKey: getFollowCacheKey(singleUserDetails._id),
     });
 
   const [unfollowUser, { isLoading: isUnfollowUserLoading }] =
     useUnfollowUserMutation();
+  const [isLoggingOutLoading, setIsLoggingOutLoading] = useState(false);
 
+  const toast = useToast();
   const {
     isOpen: isConfirmModalOpen,
     onOpen: onConfirmModalOpen,
     onClose: onConfirmModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isEditProfileModalOpen,
+    onOpen: onEditProfileModalOpen,
+    onClose: onEditProfileModalClose,
   } = useDisclosure();
 
   const {
@@ -60,33 +85,75 @@ const ProfileCard = ({ singleUserDetails }) => {
     createdAt,
   } = singleUserDetails;
 
-  const handleFollowUnfollow = async () => {
+  const toggleIsLoggingOutLoading = () =>
+    setIsLoggingOutLoading(!isLoggingOutLoading);
+
+  const handleLogOut = async () => {
+    toggleIsLoggingOutLoading();
+    await wait();
+    toggleIsLoggingOutLoading();
+
+    dispatch(removeUserCredentials());
+    dispatch(updateLogOutStatus());
+    showToast({
+      toast,
+      type: TOAST_TYPE.Success,
+      message: 'Logged out successfully',
+    });
+  };
+
+  const handleFollow = async () => {
     try {
-      await (!singleUserDetails?.isMainUserFollowing
-        ? followUser({
-            followId: singleUserId,
-            mainUserId,
-          })
-        : unfollowUser({
-            unfollowId: singleUserId,
-            mainUserId,
-          })
-      ).unwrap();
+      const { message } = await followUser({
+        followId: singleUserId,
+        mainUserId,
+      }).unwrap();
+      showToast({ toast, type: TOAST_TYPE.Success, message });
+    } catch (error) {
+      console.error(error.message);
+      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
+    }
+  };
+
+  const handleUnfollow = async () => {
+    try {
+      const { message } = await unfollowUser({
+        unfollowId: singleUserId,
+        mainUserId,
+      }).unwrap();
+      showToast({ toast, type: TOAST_TYPE.Success, message });
     } catch (error) {
       console.error(error.message);
     }
   };
 
   const followButtonJSX = (
-    <Button
-      {...followButtonStyle}
-      borderRadius='full'
-      letterSpacing='wider'
-      onClick={handleFollowUnfollow}
-      isLoading={isFollowUserLoading || isUnfollowUserLoading}
-    >
-      {singleUserDetails?.isMainUserFollowing ? 'Unfollow' : 'Follow'}
-    </Button>
+    <>
+      {isConfirmModalOpen && singleUserDetails?.isMainUserFollowing && (
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={onConfirmModalClose}
+          modalText={MODAL_TEXT_TYPE.UNFOLLOW}
+          isLoading={isUnfollowUserLoading}
+          handleConfirmClick={handleUnfollow}
+        />
+      )}
+
+      <Button
+        {...followButtonStyle}
+        borderRadius='full'
+        letterSpacing='wider'
+        onClick={
+          singleUserDetails?.isMainUserFollowing
+            ? onConfirmModalOpen
+            : handleFollow
+        }
+        isLoading={isFollowUserLoading}
+        _loading={{ cursor: 'pointer' }}
+      >
+        {singleUserDetails?.isMainUserFollowing ? 'Unfollow' : 'Follow'}
+      </Button>
+    </>
   );
 
   const editAndLogOutButtonJSX = (
@@ -96,11 +163,19 @@ const ProfileCard = ({ singleUserDetails }) => {
           isOpen={isConfirmModalOpen}
           onClose={onConfirmModalClose}
           modalText={MODAL_TEXT_TYPE.LOGOUT}
-          isUserLoggingOut
+          isLoading={isLoggingOutLoading}
+          handleConfirmClick={handleLogOut}
         />
       )}
 
-      <Button sx={followButtonStyle}>Edit Profile</Button>
+      {isEditProfileModalOpen && (
+        <EditProfileModal
+          isOpen={isEditProfileModalOpen}
+          onClose={onEditProfileModalClose}
+          mainUserInfo={singleUserDetails}
+        />
+      )}
+
       <IconButton
         aria-label='logout button'
         onClick={onConfirmModalOpen}
@@ -109,20 +184,34 @@ const ProfileCard = ({ singleUserDetails }) => {
       >
         <Icon fontSize={'1.25rem'} as={HiOutlineLogout} />
       </IconButton>
+
+      <IconButton
+        aria-label='edit profile button'
+        onClick={onEditProfileModalOpen}
+        sx={followButtonStyle}
+        borderRadius={'50%'}
+      >
+        <Icon fontSize={'1.25rem'} as={FaEdit} />
+      </IconButton>
     </>
   );
 
   return (
-    <Box w='100%' as='section' p='1rem 1.5rem' mb='1rem'>
+    <Box w='100%' as='section' p='1rem .5rem' mb='1rem'>
       <Box
         as='article'
         display='flex'
         gap='.5rem'
         mb='1rem'
+        flexWrap={'wrap'}
         alignItems='center'
         letterSpacing={'wider'}
       >
-        <Avatar size='lg' name={`${firstName} ${lastName}`} src={pic} />
+        <Avatar
+          size={{ base: 'md', md: 'lg' }}
+          name={`${firstName} ${lastName}`}
+          src={pic}
+        />
         <Box as='div'>
           <Text fontWeight='semibold'>
             {firstName} {lastName}
@@ -185,7 +274,7 @@ const ProfileCard = ({ singleUserDetails }) => {
           alignItems={'center'}
           gap='0 .35rem'
         >
-          <Icon as={FaCalendarAlt} /> Joined {getCreatedDate(createdAt)}
+          <Icon as={FaCalendarAlt} /> Joined {getFormattedDate(createdAt)}
         </Text>
       </Box>
     </Box>

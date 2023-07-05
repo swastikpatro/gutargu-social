@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -22,7 +21,22 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
+
+// react router dom
 import { Link } from 'react-router-dom';
+
+// redux internal
+import {
+  useLikePostMutation,
+  useUnlikePostMutation,
+  useUnbookmarkPostMutation,
+  useBookmarkPostMutation,
+  useDeletePostMutation,
+} from '../store/api';
+import { useSelector } from 'react-redux';
+
+// react icons
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import {
   BsBookmark,
   BsThreeDotsVertical,
@@ -30,19 +44,16 @@ import {
   BsFillHeartFill,
   BsFillBookmarkFill,
 } from 'react-icons/bs';
-// import { TfiComment } from 'react-icons/tfi';
 import { HiShare } from 'react-icons/hi';
+// import { TfiComment } from 'react-icons/tfi';
+
+// from internal files
 import { getCreatedDate, showToast } from '../utils/utils';
 import PostModal from './PostModal';
 import ConfirmModal from './ConfirmModal';
 import { DEBOUNCED_DELAY, MODAL_TEXT_TYPE, TOAST_TYPE } from '../constants';
-import {
-  useLikePostMutation,
-  useUnlikePostMutation,
-  useUnbookmarkPostMutation,
-  useBookmarkPostMutation,
-} from '../store/api';
-import { useSelector } from 'react-redux';
+
+// react icons
 import { useEffect, useRef, useState } from 'react';
 
 const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
@@ -55,6 +66,8 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   const [bookmarkPost] = useBookmarkPostMutation();
   const [unbookmarkPost] = useUnbookmarkPostMutation();
 
+  const [deletePost, { isLoading: isPostDeleting }] = useDeletePostMutation();
+
   const [isBookmarkedLocal, setIsBookmarkedLocal] = useState(
     isBookmarkedByMainUser
   );
@@ -62,37 +75,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   const toggleBookmark = () => {
     setIsBookmarkedLocal(!isBookmarkedLocal);
   };
-
-  useEffect(() => {
-    // if in the cache, post is bookmarked my main user, and also the isBookmarked state is true, then no need to update optimistically.
-    if (isBookmarkedByMainUser === isBookmarkedLocal) {
-      return;
-    }
-
-    let timer = setTimeout(() => {
-      handleBookmarkUnbookmark();
-    }, DEBOUNCED_DELAY);
-
-    return () => {
-      // if timer is present and user navigates to different route so component gets out of view, so then, dont clear the timeout, let the last post request fly!
-
-      // else if timer is present and user toggles isBookmarkedLocal, clear the previous timer
-      if (!isMountRef.current) {
-        return;
-      }
-      clearTimeout(timer);
-    };
-  }, [isBookmarkedLocal]);
-
-  const {
-    _id: postId,
-    author: { _id: authorId, firstName, lastName, username, pic },
-    content,
-    imageUrl,
-    createdAt,
-    isLikedByMainUser,
-    likes: { likeCount },
-  } = postData;
 
   const {
     isOpen: isPostModalOpen,
@@ -107,6 +89,16 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
   } = useDisclosure();
 
   const toast = useToast();
+
+  const {
+    _id: postId,
+    author: { _id: authorId, firstName, lastName, username, pic },
+    content,
+    imageUrl,
+    createdAt,
+    isLikedByMainUser,
+    likes: { likeCount },
+  } = postData;
 
   const isPostByMainUser = mainUserId === authorId;
 
@@ -148,6 +140,40 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
       console.log({ error: error.message });
     }
   };
+
+  const handleDeletePost = async () => {
+    try {
+      const { message } = await deletePost({
+        postIdToDelete: postId,
+      }).unwrap();
+
+      showToast({ toast, type: TOAST_TYPE.Success, message });
+    } catch (error) {
+      console.log({ error: error.message });
+      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
+    }
+  };
+
+  useEffect(() => {
+    // if in the cache, post is bookmarked my main user, and also the isBookmarked state is true, then no need to update optimistically.
+    if (isBookmarkedByMainUser === isBookmarkedLocal) {
+      return;
+    }
+
+    let timer = setTimeout(() => {
+      handleBookmarkUnbookmark();
+    }, DEBOUNCED_DELAY);
+
+    return () => {
+      // if timer is present and user navigates to different route so component gets out of view, so then, dont clear the timeout, let the last post request fly!
+
+      // else if timer is present and user toggles isBookmarkedLocal, clear the previous timer
+      if (!isMountRef.current) {
+        return;
+      }
+      clearTimeout(timer);
+    };
+  }, [isBookmarkedLocal]);
 
   return (
     <Card boxShadow='md' cursor='default' ref={isMountRef}>
@@ -211,15 +237,18 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
               <MenuList minW='10rem' p='0' boxShadow='xl'>
                 <MenuItem
                   onClick={onPostModalOpen}
-                  as={Button}
-                  borderRadius='none'
+                  p='1rem'
+                  fontSize={'1rem'}
+                  icon={<FaEdit fontSize={'1.15rem'} />}
                 >
                   Edit
                 </MenuItem>
+
                 <MenuItem
+                  icon={<FaTrashAlt fontSize={'1.15rem'} />}
                   onClick={onConfirmModalOpen}
-                  as={Button}
-                  borderRadius='none'
+                  p='1rem'
+                  fontSize={'1rem'}
                 >
                   Delete
                 </MenuItem>
@@ -229,7 +258,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         </Flex>
       </CardHeader>
 
-      <CardBody pt='0' as='main'>
+      <CardBody pt='0' pb='1rem' as='main'>
         {isPostModalOpen && (
           <PostModal
             isOpen={isPostModalOpen}
@@ -243,7 +272,8 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             isOpen={isConfirmModalOpen}
             onClose={onConfirmModalClose}
             modalText={MODAL_TEXT_TYPE.DELETE_POST}
-            isDeletingPostAndPostId={postId}
+            handleConfirmClick={handleDeletePost}
+            isLoading={isPostDeleting}
           />
         )}
 
@@ -259,28 +289,30 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             {content}
           </Text>
 
-          {!!imageUrl && !imageUrl.includes('.mp4') && (
+          {!!imageUrl && (
             <Container
               w='full'
-              minH='20rem'
+              // minH='20rem'
               h='fit-content'
               mt={'.75rem'}
               p='0'
               borderRadius='md'
               overflow={'hidden'}
             >
-              <Image
-                objectFit='cover'
-                w='full'
-                h='full'
-                bg={'#fff'}
-                src={imageUrl}
-                alt='post image'
-              />
+              {!imageUrl.includes('.mp4') ? (
+                <Image
+                  objectFit='cover'
+                  w='full'
+                  h='full'
+                  bg={'#fff'}
+                  src={imageUrl}
+                  alt='post image'
+                />
+              ) : (
+                <video controls src={imageUrl} />
+              )}
             </Container>
           )}
-
-          {imageUrl.includes('.mp4') && <video controls src={imageUrl} />}
         </ChakraLink>
       </CardBody>
 
@@ -299,16 +331,16 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         >
           <IconButton
             onClick={handleLikeUnlikePost}
+            isLoading={isLikeLoading || isUnlikeLoading}
+            color={isLikedByMainUser ? 'red' : 'inherit'}
             variant='ghost'
             aria-label='Like Unlike Toggle'
             cursor='pointer'
             borderRadius='50%'
             fontSize={{ base: '1rem', md: '1.25rem' }}
             w='2rem'
-            color={isLikedByMainUser ? 'red' : 'inherit'}
             _hover={{ bg: 'transparent' }}
-            isLoading={isLikeLoading || isUnlikeLoading}
-            _loading={{ color: '#fff' }}
+            _loading={{ color: 'gray' }}
           >
             <Icon as={isLikedByMainUser ? BsFillHeartFill : BsHeart} />
           </IconButton>
@@ -338,6 +370,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
 
         <IconButton
           onClick={toggleBookmark}
+          color={isBookmarkedLocal ? 'green' : 'inherit'}
           variant='ghost'
           aria-label='Like Unlike Toggle'
           cursor='pointer'
@@ -345,7 +378,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           bg='transparent'
           fontSize={{ base: '1rem', md: '1.25rem' }}
           w='2rem'
-          color={isBookmarkedLocal ? 'green' : 'inherit'}
           _hover={{ bg: 'transparent' }}
         >
           <Icon as={isBookmarkedLocal ? BsFillBookmarkFill : BsBookmark} />
@@ -354,6 +386,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         <Spacer />
 
         <IconButton
+          onClick={handleCopyToClipboard}
           variant='ghost'
           aria-label='Like Unlike Toggle'
           boxSize={6}
@@ -362,7 +395,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           p='1.15rem'
           bg='transparent'
           fontSize={{ base: '1rem', md: '1.25rem' }}
-          onClick={handleCopyToClipboard}
         >
           <Icon as={HiShare} />
         </IconButton>

@@ -1,9 +1,13 @@
 import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
-import { useGetBookmarkPostsQuery } from '../store/api';
+import {
+  useGetBookmarkPostsQuery,
+  useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
+} from '../store/api';
 
 import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
 
 const BookmarkPage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -11,9 +15,16 @@ const BookmarkPage = () => {
   const { data: allBookmarkPosts, isLoading: isBookmarkedPostsLoading } =
     useGetBookmarkPostsQuery(mainUserId);
 
+  const { data: mainUserDetails, isLoading: isMainUserLoading } =
+    useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
+
+  const bookmarkPostsWithUpdatedUser = getUpdatedPostsWithMainUserDetails({
+    posts: allBookmarkPosts,
+    mainUserDetails,
+  });
   const headingText = 'Bookmarks';
 
-  if (isBookmarkedPostsLoading) {
+  if (isBookmarkedPostsLoading || isMainUserLoading) {
     return (
       <PostsContainer headingText={headingText}>
         <Center>
@@ -59,7 +70,7 @@ const BookmarkPage = () => {
 
   return (
     <PostsContainer headingText={headingText}>
-      {allBookmarkPosts.map((singlePost) => (
+      {bookmarkPostsWithUpdatedUser.map((singlePost) => (
         <PostCard
           key={singlePost._id}
           postData={singlePost}

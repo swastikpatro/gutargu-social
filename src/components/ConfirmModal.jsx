@@ -8,63 +8,16 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  useToast,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useDeletePostMutation } from '../store/api';
-import { showToast, wait } from '../utils/utils';
-import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
-import { TOAST_TYPE } from '../constants';
-import { useDispatch } from 'react-redux';
 
-// this will have delete post functionality and log out user functionality
+// this will have delete post functionality, unfollow and log out user functionality
 const ConfirmModal = ({
   isOpen,
   onClose,
   modalText,
-  isDeletingPostAndPostId,
-  isUserLoggingOut,
+  handleConfirmClick,
+  isLoading,
 }) => {
-  const toast = useToast();
-
-  const [deletePost, { isLoading: isPostDeleting }] = useDeletePostMutation();
-  const [isLoggingOutLoading, setIsLoggingOutLoading] = useState(false);
-
-  const isLoading = isPostDeleting || isLoggingOutLoading;
-
-  const dispatch = useDispatch();
-
-  const toggleIsLoggingOutLoading = () =>
-    setIsLoggingOutLoading(!isLoggingOutLoading);
-
-  const handleLogOut = async () => {
-    toggleIsLoggingOutLoading();
-    await wait();
-    toggleIsLoggingOutLoading();
-
-    dispatch(removeUserCredentials());
-    dispatch(updateLogOutStatus());
-    showToast({
-      toast,
-      type: TOAST_TYPE.Success,
-      message: 'Logged out successfully',
-    });
-  };
-
-  const handleDeletePost = async () => {
-    try {
-      const { message } = await deletePost({
-        postIdToDelete: isDeletingPostAndPostId,
-      }).unwrap();
-
-      showToast({ toast, type: TOAST_TYPE.Success, message });
-      onClose();
-    } catch (error) {
-      console.log({ error: error.message });
-      showToast({ toast, type: TOAST_TYPE.Error, message: error.message });
-    }
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -72,8 +25,8 @@ const ConfirmModal = ({
       closeOnOverlayClick={!isLoading}
       isCentered
     >
-      <ModalOverlay />
-      <ModalContent>
+      <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(8px)' />
+      <ModalContent w='90vw' maxW='400px'>
         <ModalHeader textTransform={'capitalize'}>{modalText}</ModalHeader>
         <ModalCloseButton isDisabled={isLoading} />
         <ModalBody>
@@ -100,9 +53,9 @@ const ConfirmModal = ({
             _hover={{ bg: 'red.600' }}
             color='#fff'
             isLoading={isLoading}
-            onClick={() => {
-              isUserLoggingOut && handleLogOut();
-              isDeletingPostAndPostId && handleDeletePost();
+            onClick={async () => {
+              await handleConfirmClick();
+              onClose();
             }}
             textTransform={'capitalize'}
           >

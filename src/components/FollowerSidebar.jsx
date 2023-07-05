@@ -5,9 +5,11 @@ import {
   Spinner,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { useGetAllUsersQuery } from '../store/api';
 
 import { useSelector } from 'react-redux';
+
+// internals
+import { useGetAllUsersQuery } from '../store/api';
 import { pollingInterval } from '../constants';
 import FollowerCard from './FollowerCard';
 

@@ -5,9 +5,7 @@ const PostsContainer = ({ children, headingText }) => {
     <Container
       display='grid'
       gap={{ base: '1rem 0', md: '1.5rem 0' }}
-      p='0'
-      pt={{ base: '.25rem', md: '0' }}
-      // justifyContent='center'
+      pt={{ md: '0' }}
     >
       <Heading
         as='h2'
