@@ -20,7 +20,7 @@ const useMedia = () => {
       showToast({
         toast,
         type: TOAST_TYPE.Error,
-        message: 'Video size should be less than 10MB',
+        message: 'Image size should be less than 4MB',
       });
       return;
     }
@@ -34,7 +34,7 @@ const useMedia = () => {
     const url =
       mediaType === 'video'
         ? `https://api.cloudinary.com/v1_1/${
-            import.meta.env.VITE_REACT_UPLOAD_PRESET
+            import.meta.env.VITE_REACT_CLOUD_NAME
           }/video/upload`
         : `https://api.cloudinary.com/v1_1/${
             import.meta.env.VITE_REACT_CLOUD_NAME

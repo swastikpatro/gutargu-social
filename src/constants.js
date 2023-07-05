@@ -29,6 +29,10 @@ export const MODAL_TEXT_TYPE = {
   UNFOLLOW: 'unfollow',
 };
 
+export const LIMIT = {
+  CONTENT_LIMIT: 240,
+};
+
 export const pollingInterval = 12000;
 
 export const avatarsList = [

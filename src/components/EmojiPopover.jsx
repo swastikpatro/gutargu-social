@@ -1,0 +1,57 @@
+import {
+  Icon,
+  IconButton,
+  Popover,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
+  useColorModeValue,
+  useDisclosure,
+} from '@chakra-ui/react';
+
+import { FaSmile } from 'react-icons/fa';
+
+import EmojiPicker from 'emoji-picker-react';
+
+const EmojiPopover = ({ onEmojiClick }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const colorModeValue = useColorModeValue('light', 'dark');
+  return (
+    <Popover isLazy isOpen={isOpen} onClose={onClose} closeOnBlur={true}>
+      <PopoverTrigger>
+        <IconButton
+          onClick={onOpen}
+          fontSize={'1.25rem'}
+          bg='transparent'
+          _hover={{ bg: 'transparent' }}
+        >
+          <Icon as={FaSmile} />
+        </IconButton>
+      </PopoverTrigger>
+
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        {isOpen && (
+          <EmojiPicker
+            onEmojiClick={({ emoji }) => onEmojiClick(emoji)}
+            theme={colorModeValue}
+            emojiStyle='native'
+            emojiVersion='1.0'
+            searchDisabled
+            lazyLoadEmojis
+            skinTonesDisabled
+            suggestedEmojisMode='recent'
+            previewConfig={{
+              showPreview: false,
+            }}
+            height='240px'
+          />
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export default EmojiPopover;
