@@ -1,7 +1,14 @@
 import {
   Avatar,
+  Box,
   Button,
+  Container,
   Flex,
+  FormControl,
+  Icon,
+  IconButton,
+  Image,
+  Input,
   // FormControl,
   // Icon,
   // IconButton,
@@ -16,14 +23,19 @@ import {
   ModalHeader,
   ModalOverlay,
   Spacer,
+  Text,
   Textarea,
   useToast,
 } from '@chakra-ui/react';
 
 import { useRef, useState } from 'react';
 import { useAddNewPostMutation, useEditPostMutation } from '../store/api';
-import { TOAST_TYPE } from '../constants';
+import { LIMIT, TOAST_TYPE } from '../constants';
 import { hasEqualProperties, showToast } from '../utils/utils';
+import { FaImage, FaTimes } from 'react-icons/fa';
+import { useMedia } from '../hooks';
+import EmojiPicker from 'emoji-picker-react';
+import EmojiPopover from './EmojiPopover';
 
 const PostModal = ({
   isOpen,
@@ -33,6 +45,8 @@ const PostModal = ({
 }) => {
   const textareaRef = useRef(null);
   const toast = useToast();
+  const { uploadMedia, isMediaUploading } = useMedia();
+  const fileInputRef = useRef(null);
 
   const [addNewPost, { isLoading: isLoadingOnAdd }] = useAddNewPostMutation();
   const [editPost, { isLoading: isLoadingOnEdit }] = useEditPostMutation();
@@ -67,15 +81,29 @@ const PostModal = ({
       }) || isPostNotToUpdate;
   }
 
-  const handleInputs = (e) => {
-    const targetElement = e.target;
-    const targetName = e.target.name;
-    if (targetName === 'content') {
-      setInputs({ ...inputs, [targetName]: targetElement.value });
-    }
+  const isContentOverLimit = inputs.content.length > LIMIT.CONTENT_LIMIT;
+
+  const handleContent = (e) =>
+    setInputs({ ...inputs, content: e.target.value });
+
+  const handleImageUrl = (url) => setInputs({ ...inputs, imageUrl: url });
+
+  const handleEmojiClick = (emojiClicked) =>
+    setInputs({ ...inputs, content: `${inputs.content}${emojiClicked}` });
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files[0];
+
+    await uploadMedia({
+      media: file,
+      updateMedia: handleImageUrl,
+      toast,
+    });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (inputs.content.trim().length < 1) {
       showToast({
         toast,
@@ -90,6 +118,16 @@ const PostModal = ({
       return;
     }
 
+    // if user enables from devtools and try to submit with more content
+    if (isContentOverLimit) {
+      showToast({
+        toast,
+        type: TOAST_TYPE.Error,
+        message: 'Content is over limit',
+      });
+      return;
+    }
+
     try {
       let message = '';
       if (isAddingAndMainUserData) {
@@ -98,7 +136,6 @@ const PostModal = ({
       }
 
       if (isEditingAndMainUserData) {
-        console.log({ postIdToUpdate });
         const response = await editPost({ ...inputs, postIdToUpdate }).unwrap();
         message = response.message;
       }
@@ -120,76 +157,135 @@ const PostModal = ({
       onClose={onClose}
     >
       <ModalOverlay bg='blackAlpha.300' backdropFilter='blur(8px)' />
-      <ModalContent w='90vw' maxW='400px'>
+      <ModalContent w='90vw' maxW='550px'>
         <ModalHeader>
           {isAddingAndMainUserData ? 'New' : 'Edit'} Post
         </ModalHeader>
 
         <ModalCloseButton isDisabled={isSubmitting} />
 
-        <ModalBody p={4} py='.75rem'>
-          <Flex gap={'.5rem'} alignItems={{ md: 'flex-start' }}>
-            <Avatar
-              size={{ base: 'sm', md: 'md' }}
-              name={`${firstName} ${lastName}`}
-              src={pic}
-              cursor='pointer'
-              mt={{ base: '.5rem' }}
-            />
-
-            <Textarea
-              ref={textareaRef}
-              h='10rem'
-              pl='.5rem'
-              overflow={'auto'}
-              name='content'
-              placeholder={`What's in your mind, ${firstName} ?`}
-              isDisabled={false}
-              value={inputs.content}
-              onChange={handleInputs}
-              outline='none'
-              border='none'
-              resize='none'
-              focusBorderColor='transparent'
-            />
-          </Flex>
-        </ModalBody>
-
-        <ModalFooter pt='.5rem' borderTop='1px solid gray'>
-          <Flex alignItems={'center'} w='full' gap='1rem'>
-            {/* <IconButton fontSize={'1rem'}>
-              <Icon as={BsFillEmojiSmileFill} />
-            </IconButton>
-
-            <InputGroup>
-              <Input
-                type='file'
-                id='profile_pic'
-                name='profile_pic'
-                accept='.jpg, .jpeg, .png, .mp4'
+        {/* form starts here */}
+        <Box as='form' onSubmit={handleSubmit}>
+          <ModalBody p={4} py='.75rem'>
+            <Flex gap={'.5rem'} alignItems={{ md: 'flex-start' }}>
+              <Avatar
+                size='md'
+                name={`${firstName} ${lastName}`}
+                src={pic}
+                cursor='pointer'
+                mt={{ base: '.5rem' }}
               />
-              <InputLeftElement pointerEvents='pointer'>
-                <Icon as={FaImage} />
-              </InputLeftElement>
-            </InputGroup> */}
-            <Spacer />
 
-            <Button
-              borderRadius='2.5rem'
-              bg='blue.400'
-              colorScheme='blue'
-              letterSpacing='widest'
-              p='1rem 1.5rem'
-              color='#fff'
-              onClick={handleSubmit}
-              _loading={{ cursor: 'pointer' }}
-              isLoading={isSubmitting}
+              <Textarea
+                ref={textareaRef}
+                letterSpacing={{ base: 'wider', md: 'widest' }}
+                h='10rem'
+                pl='.5rem'
+                overflow={'auto'}
+                name='content'
+                placeholder={`What's in your mind, ${firstName} ?`}
+                isDisabled={false}
+                value={inputs.content}
+                onChange={handleContent}
+                outline='none'
+                border='none'
+                resize='none'
+                focusBorderColor='transparent'
+              />
+            </Flex>
+
+            {!!inputs.imageUrl && (
+              <Container mt='1rem' pos='relative' minH='10rem'>
+                {!inputs.imageUrl.includes('.mp4') ? (
+                  <Image
+                    objectFit='cover'
+                    w='full'
+                    h='full'
+                    bg={'#fff'}
+                    src={inputs.imageUrl}
+                    alt='post image'
+                  />
+                ) : (
+                  <video controls src={inputs.imageUrl} />
+                )}
+
+                <IconButton
+                  borderRadius={'50%'}
+                  bg='red.400'
+                  pos='absolute'
+                  top='0'
+                  right='1rem'
+                  color={'#fff'}
+                  _hover={{ bg: 'red.600' }}
+                  onClick={() => handleImageUrl('')}
+                >
+                  <Icon as={FaTimes} />
+                </IconButton>
+              </Container>
+            )}
+          </ModalBody>
+
+          <ModalFooter pt='.5rem' borderTop='1px solid gray'>
+            <Box
+              as='div'
+              display={'flex'}
+              alignItems={'center'}
+              w='full'
+              gap={{ base: '.55rem', md: '2rem' }}
             >
-              {!!isAddingAndMainUserData && 'Post'}
-              {!!isEditingAndMainUserData && 'Update'}
-            </Button>
-          </Flex>
-        </ModalFooter>
+              {/* image input */}
+              <FormControl w='fit-content'>
+                <IconButton
+                  onClick={() => fileInputRef.current.click()}
+                  fontSize={'1rem'}
+                  bg='transparent'
+                  _hover={{ bg: 'transparent' }}
+                  isLoading={isMediaUploading}
+                >
+                  <Icon fontSize={'1.5rem'} as={FaImage} />
+                </IconButton>
+
+                <Input
+                  ref={fileInputRef}
+                  type='file'
+                  display='none'
+                  accept='image/*, video/mp4'
+                  onChange={handleImageSelect}
+                />
+              </FormControl>
+              {/* end of image input */}
+
+              <EmojiPopover onEmojiClick={handleEmojiClick} />
+
+              <Spacer />
+              <Text letterSpacing={'wide'}>
+                <Box
+                  as={'span'}
+                  color={isContentOverLimit ? 'red.400' : 'inherit'}
+                >
+                  {inputs.content.length}
+                </Box>{' '}
+                / {LIMIT.CONTENT_LIMIT}
+              </Text>
+
+              <Button
+                borderRadius='2.5rem'
+                bg='blue.400'
+                colorScheme='blue'
+                letterSpacing='widest'
+                p='1rem 1.5rem'
+                color='#fff'
+                type='submit'
+                _loading={{ cursor: 'pointer' }}
+                isLoading={isSubmitting}
+                isDisabled={isContentOverLimit}
+              >
+                {!!isAddingAndMainUserData && 'Post'}
+                {!!isEditingAndMainUserData && 'Update'}
+              </Button>
+            </Box>
+          </ModalFooter>
+        </Box>
       </ModalContent>
     </Modal>
   );

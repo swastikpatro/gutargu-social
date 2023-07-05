@@ -277,43 +277,44 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           />
         )}
 
-        <ChakraLink
+        {/* <ChakraLink
           as={Link}
           to={`/post/${postId}`}
           _hover={{ textDecoration: 'none' }}
+        > */}
+        <Text
+          cursor='text'
+          letterSpacing={{ base: 'mormal', md: 'wide' }}
+          fontSize={{ base: '.9rem', md: '1.1rem' }}
         >
-          <Text
-            letterSpacing={{ base: 'mormal', md: 'wide' }}
-            fontSize={{ base: '.9rem', md: '1.1rem' }}
-          >
-            {content}
-          </Text>
+          {content}
+        </Text>
 
-          {!!imageUrl && (
-            <Container
-              w='full'
-              // minH='20rem'
-              h='fit-content'
-              mt={'.75rem'}
-              p='0'
-              borderRadius='md'
-              overflow={'hidden'}
-            >
-              {!imageUrl.includes('.mp4') ? (
-                <Image
-                  objectFit='cover'
-                  w='full'
-                  h='full'
-                  bg={'#fff'}
-                  src={imageUrl}
-                  alt='post image'
-                />
-              ) : (
-                <video controls src={imageUrl} />
-              )}
-            </Container>
-          )}
-        </ChakraLink>
+        {!!imageUrl && (
+          <Container
+            w='full'
+            // minH='20rem'
+            h='fit-content'
+            mt={'.75rem'}
+            p='0'
+            borderRadius='md'
+            overflow={'hidden'}
+          >
+            {!imageUrl.includes('.mp4') ? (
+              <Image
+                objectFit='cover'
+                w='full'
+                h='full'
+                bg={'#fff'}
+                src={imageUrl}
+                alt='post image'
+              />
+            ) : (
+              <video controls src={imageUrl} />
+            )}
+          </Container>
+        )}
+        {/* </ChakraLink> */}
       </CardBody>
 
       <CardFooter

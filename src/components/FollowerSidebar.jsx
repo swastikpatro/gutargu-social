@@ -29,7 +29,7 @@ const FollowerSidebar = () => {
   return (
     <Box
       as='section'
-      bg={useColorModeValue('gray.200', 'gray.700')}
+      bg={useColorModeValue('gray.100', 'gray.700')}
       p='1rem 0 .75rem 1rem'
       borderRadius='xl'
       mt='1rem'
