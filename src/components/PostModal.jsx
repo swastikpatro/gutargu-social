@@ -9,12 +9,6 @@ import {
   IconButton,
   Image,
   Input,
-  // FormControl,
-  // Icon,
-  // IconButton,
-  // Input,
-  // InputGroup,
-  // InputLeftElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -103,7 +97,9 @@ const PostModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (inputs.content.trim().length < 1) {
+    const trimmedContent = inputs.content.trim();
+
+    if (!trimmedContent.length) {
       showToast({
         toast,
         type: TOAST_TYPE.Error,
@@ -130,12 +126,19 @@ const PostModal = ({
     try {
       let message = '';
       if (isAddingAndMainUserData) {
-        const response = await addNewPost(inputs).unwrap();
+        const response = await addNewPost({
+          ...inputs,
+          content: trimmedContent,
+        }).unwrap();
         message = response.message;
       }
 
       if (isEditingAndMainUserData) {
-        const response = await editPost({ ...inputs, postIdToUpdate }).unwrap();
+        const response = await editPost({
+          ...inputs,
+          content: trimmedContent,
+          postIdToUpdate,
+        }).unwrap();
         message = response.message;
       }
 
@@ -181,14 +184,15 @@ const PostModal = ({
                 h='10rem'
                 pl='.5rem'
                 overflow={'auto'}
+                _disabled={{ cursor: 'text' }}
+                isDisabled={isSubmitting}
+                resize='none'
                 name='content'
                 placeholder={`What's in your mind, ${firstName} ?`}
-                isDisabled={false}
                 value={inputs.content}
                 onChange={handleContent}
                 outline='none'
                 border='none'
-                resize='none'
                 focusBorderColor='transparent'
               />
             </Flex>
