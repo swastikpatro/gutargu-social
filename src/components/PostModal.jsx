@@ -34,8 +34,8 @@ import { LIMIT, TOAST_TYPE } from '../constants';
 import { hasEqualProperties, showToast } from '../utils/utils';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import { useMedia } from '../hooks';
-import EmojiPicker from 'emoji-picker-react';
 import EmojiPopover from './EmojiPopover';
+import GifPopover from './GifPopover';
 
 const PostModal = ({
   isOpen,
@@ -71,14 +71,13 @@ const PostModal = ({
         }
   );
 
-  let isPostNotToUpdate = !inputs.content && !inputs.imageUrl;
+  let isPostNotToUpdate = false;
   if (isEditingAndMainUserData) {
     // if the state has similar properties to isEditingAndMainUserData or (there is no content and image at a single time on the screen), just close modal
-    isPostNotToUpdate =
-      hasEqualProperties({
-        stateData: inputs,
-        dataObj: isEditingAndMainUserData,
-      }) || isPostNotToUpdate;
+    isPostNotToUpdate = hasEqualProperties({
+      stateData: inputs,
+      dataObj: isEditingAndMainUserData,
+    });
   }
 
   const isContentOverLimit = inputs.content.length > LIMIT.CONTENT_LIMIT;
@@ -195,7 +194,15 @@ const PostModal = ({
             </Flex>
 
             {!!inputs.imageUrl && (
-              <Container mt='1rem' pos='relative' minH='10rem'>
+              <Container
+                p='0'
+                m='0'
+                mt='1rem'
+                pos='relative'
+                w={{ base: '12rem', md: '15rem' }}
+                borderRadius={'base'}
+                overflow={'hidden'}
+              >
                 {!inputs.imageUrl.includes('.mp4') ? (
                   <Image
                     objectFit='cover'
@@ -214,7 +221,9 @@ const PostModal = ({
                   bg='red.400'
                   pos='absolute'
                   top='0'
-                  right='1rem'
+                  right='0'
+                  minW={{ base: '1.5rem', md: '2rem' }}
+                  h={{ base: '1.5rem', md: '2rem' }}
                   color={'#fff'}
                   _hover={{ bg: 'red.600' }}
                   onClick={() => handleImageUrl('')}
@@ -230,8 +239,9 @@ const PostModal = ({
               as='div'
               display={'flex'}
               alignItems={'center'}
+              flexWrap={'wrap'}
               w='full'
-              gap={{ base: '.55rem', md: '2rem' }}
+              gap={{ base: '.5rem .75rem', md: '2rem' }}
             >
               {/* image input */}
               <FormControl w='fit-content'>
@@ -249,13 +259,14 @@ const PostModal = ({
                   ref={fileInputRef}
                   type='file'
                   display='none'
-                  accept='image/*, video/mp4'
+                  accept='.jpeg, .jpg, .png, video/mp4'
                   onChange={handleImageSelect}
                 />
               </FormControl>
               {/* end of image input */}
 
               <EmojiPopover onEmojiClick={handleEmojiClick} />
+              <GifPopover onGifClick={handleImageUrl} />
 
               <Spacer />
               <Text letterSpacing={'wide'}>
@@ -276,6 +287,7 @@ const PostModal = ({
                 p='1rem 1.5rem'
                 color='#fff'
                 type='submit'
+                m='auto'
                 _loading={{ cursor: 'pointer' }}
                 isLoading={isSubmitting}
                 isDisabled={isContentOverLimit}
