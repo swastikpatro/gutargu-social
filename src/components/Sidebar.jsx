@@ -71,7 +71,7 @@ const Sidebar = () => {
       alignItems={{ base: 'center', md: 'flex-start' }}
       gap={{ base: '0 1rem', md: '1.5rem 0', xl: '.25rem 0' }}
       ml={{ md: '1rem', xl: '0' }}
-      p={{ base: '0 .25rem', md: '1rem 0' }}
+      p={{ base: '0 1.25rem', md: '1rem 0' }}
       pt={{ base: '.5rem' }}
       pb={{ md: '2rem' }}
       h={{ md: 'full' }}

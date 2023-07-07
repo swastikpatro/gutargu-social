@@ -49,14 +49,22 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
   const handlePicChange = (urlLink) =>
     setUserInfoInputs({ ...userInfoInputs, pic: urlLink });
 
-  const isNotToUpdate =
-    hasEqualProperties({
-      stateData: userInfoInputs,
-      dataObj: mainUserInfo,
-    }) || !userInfoInputs.firstName;
+  const isNotToUpdate = hasEqualProperties({
+    stateData: userInfoInputs,
+    dataObj: mainUserInfo,
+  });
 
   const handleUpdateUser = async (e) => {
     e.preventDefault();
+
+    if (!userInfoInputs.firstName.trim()) {
+      showToast({
+        type: TOAST_TYPE.Error,
+        message: 'Please fill the first name',
+        toast,
+      });
+      return;
+    }
 
     if (isNotToUpdate) {
       onClose();
@@ -111,6 +119,8 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
               <FormControl isRequired>
                 <FormLabel>First name</FormLabel>
                 <Input
+                  autoComplete='off'
+                  type='text'
                   ref={initialRef}
                   name='firstName'
                   onChange={handleUserInputChange}
@@ -122,6 +132,8 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
               <FormControl>
                 <FormLabel>Last name</FormLabel>
                 <Input
+                  autoComplete='off'
+                  type='text'
                   name='lastName'
                   onChange={handleUserInputChange}
                   placeholder='Last name'
@@ -133,6 +145,8 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
             <FormControl mt={4}>
               <FormLabel>Bio</FormLabel>
               <Input
+                autoComplete='off'
+                type='text'
                 name='bio'
                 onChange={handleUserInputChange}
                 placeholder='Bio'
@@ -143,6 +157,8 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
             <FormControl mt={4}>
               <FormLabel>Link</FormLabel>
               <Input
+                autoComplete='off'
+                type='text'
                 name='link'
                 onChange={handleUserInputChange}
                 placeholder='Website link'

@@ -40,7 +40,7 @@ const AvatarListPopover = ({
         }}
       />
 
-      <PopoverBody p='.75rem'>
+      <PopoverBody p='.75rem' boxShadow={'lg'}>
         <Box
           display={'grid'}
           gridTemplateColumns={'repeat(4, 1fr)'}
