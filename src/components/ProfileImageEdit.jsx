@@ -143,7 +143,7 @@ const ProfileImageEdit = ({ handlePicChange, activePic, fullName }) => {
                 ref={fileInputRef}
                 type='file'
                 display='none'
-                accept='image/*'
+                accept='.jpeg, .jpg, .png'
                 onChange={async (e) => {
                   onImageMenuClose();
                   await handleImageSelect(e);
