@@ -25,6 +25,7 @@ export const DEBOUNCED_DELAY = 250;
 
 export const MODAL_TEXT_TYPE = {
   DELETE_POST: 'delete post',
+  DELETE_COMMENT: 'delete comment',
   LOGOUT: 'logout',
   UNFOLLOW: 'unfollow',
 };

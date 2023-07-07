@@ -45,7 +45,7 @@ import {
   BsFillBookmarkFill,
 } from 'react-icons/bs';
 import { HiShare } from 'react-icons/hi';
-// import { TfiComment } from 'react-icons/tfi';
+import { TfiComment } from 'react-icons/tfi';
 
 // from internal files
 import { getCreatedDate, showToast } from '../utils/utils';
@@ -98,6 +98,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
     createdAt,
     isLikedByMainUser,
     likes: { likeCount },
+    comments,
   } = postData;
 
   const isPostByMainUser = mainUserId === authorId;
@@ -277,11 +278,6 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           />
         )}
 
-        {/* <ChakraLink
-          as={Link}
-          to={`/post/${postId}`}
-          _hover={{ textDecoration: 'none' }}
-        > */}
         <Text
           cursor='text'
           letterSpacing={{ base: 'mormal', md: 'wide' }}
@@ -349,14 +345,17 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           {likeCount > 0 && <Text>{likeCount}</Text>}
         </Box>
 
-        {/* <Box
+        <ChakraLink
+          as={Link}
+          to={`/post/${postId}`}
+          _hover={{ textDecoration: 'none' }}
           display='flex'
           alignItems='center'
           gap={{ base: '0', md: '.1rem' }}
         >
           <IconButton
             variant='ghost'
-            aria-label='Like Unlike Toggle'
+            aria-label='Comment'
             cursor='pointer'
             borderRadius='50%'
             bg='transparent'
@@ -366,14 +365,14 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
             <Icon as={TfiComment} />
           </IconButton>
 
-          <Text>3</Text>
-        </Box> */}
+          {comments.length > 0 && <Text>{comments.length}</Text>}
+        </ChakraLink>
 
         <IconButton
           onClick={toggleBookmark}
           color={isBookmarkedLocal ? 'green' : 'inherit'}
           variant='ghost'
-          aria-label='Like Unlike Toggle'
+          aria-label='Bookmark Unbookmark Toggle'
           cursor='pointer'
           borderRadius='50%'
           bg='transparent'
@@ -389,7 +388,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
         <IconButton
           onClick={handleCopyToClipboard}
           variant='ghost'
-          aria-label='Like Unlike Toggle'
+          aria-label='Copy Post Url to Clipboard'
           boxSize={6}
           cursor='pointer'
           borderRadius='50%'

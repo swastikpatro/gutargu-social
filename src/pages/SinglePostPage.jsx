@@ -4,9 +4,18 @@ import {
   useGetSinglePostQuery,
   useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
-import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
+import {
+  Center,
+  Spinner,
+  Text,
+  Link as ChakraLink,
+  Container,
+} from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
-import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
+import { getUpdatedWithMainUserDetails } from '../utils/utils';
+import CommentForm from '../components/CommentForm';
+import CommentCard from '../components/CommentCard';
+import { useState } from 'react';
 
 const SinglePostPage = () => {
   const { postId } = useParams();
@@ -21,6 +30,10 @@ const SinglePostPage = () => {
 
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
     useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
+
+  const [activeCommentId, setActiveCommentId] = useState('');
+
+  const updateActiveCommentId = (commentId) => setActiveCommentId(commentId);
 
   const headingText = 'Single Post Page';
 
@@ -67,31 +80,19 @@ const SinglePostPage = () => {
     );
   }
 
-  // if (isSinglePostFetching) {
-  //   console.log({ singlePost });
-  //   return (
-  //     <PostContainer headingText={headingText}>
-  //       <PostCard
-  //         key={'10'}
-  //         postData={singlePost}
-  //         isBookmarkedByMainUser={
-  //           mainUserDetails.bookmarkedPostIds[singlePost._id] || false
-  //         }
-  //       />
-  //       {/* <PageLoader /> */}
-  //     </PostContainer>
-  //   );
-  // }
-  // if (isSinglePostFetching) {
-  //   console.log('fetching again');
-  // }
-
-  // console.log('displaying ui');
-
-  const [singlePostWithUpdatedDetails] = getUpdatedPostsWithMainUserDetails({
+  const [singlePostWithUpdatedDetails] = getUpdatedWithMainUserDetails({
     posts: [singlePost],
     mainUserDetails,
+    propName: 'author',
   });
+
+  const commentsWithUpdatedDetails = getUpdatedWithMainUserDetails({
+    posts: singlePost.comments,
+    mainUserDetails,
+    propName: 'user',
+  });
+
+  const totalComments = commentsWithUpdatedDetails.length;
 
   return (
     <PostContainer headingText={headingText}>
@@ -101,6 +102,38 @@ const SinglePostPage = () => {
           mainUserDetails.bookmarkedPostIds[singlePost._id] || false
         }
       />
+
+      <Text mt='1rem' fontWeight={'bold'} letterSpacing={'wider'}>
+        {totalComments > 0 ? totalComments : 'No'} Repl
+        {totalComments === 1 ? 'y' : 'ies'}
+      </Text>
+
+      <CommentForm isAddingAndMainUserInfo={mainUserDetails} />
+
+      <Container
+        p='0'
+        display={'flex'}
+        flexDir={'column'}
+        gap={{ base: '1rem', md: '1.5rem' }}
+      >
+        {commentsWithUpdatedDetails.map((singleComment) =>
+          activeCommentId === singleComment._id ? (
+            <CommentForm
+              key={singleComment._id}
+              isEditingAndCommentData={singleComment}
+              postAuthorId={singlePost.author._id}
+              clearActiveCommentId={() => updateActiveCommentId('')}
+            />
+          ) : (
+            <CommentCard
+              key={singleComment._id}
+              commentData={singleComment}
+              ostAuthorId={singlePost.author._id}
+              updateActiveCommentId={updateActiveCommentId}
+            />
+          )
+        )}
+      </Container>
     </PostContainer>
   );
 };
