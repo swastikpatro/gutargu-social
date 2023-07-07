@@ -57,7 +57,15 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
   const handleUpdateUser = async (e) => {
     e.preventDefault();
 
-    if (!userInfoInputs.firstName.trim()) {
+    const trimmedUserInputs = Object.keys(userInfoInputs).reduce(
+      (acc, currKey) => {
+        acc[currKey] = userInfoInputs[currKey].trim();
+        return acc;
+      },
+      {}
+    );
+
+    if (!trimmedUserInputs.firstName) {
       showToast({
         type: TOAST_TYPE.Error,
         message: 'Please fill the first name',
@@ -74,7 +82,7 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
     try {
       const { message } = await updateUser({
         mainUserId,
-        ...userInfoInputs,
+        ...trimmedUserInputs,
       }).unwrap();
 
       showToast({

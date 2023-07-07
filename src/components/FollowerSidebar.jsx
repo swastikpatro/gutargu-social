@@ -51,6 +51,15 @@ const FollowerSidebar = () => {
           <Center>
             <Spinner />
           </Center>
+        ) : suggestedUnFollowedUsers.length < 1 ? (
+          <Text
+            color={'red.400'}
+            fontSize={{ base: '1rem', md: '1.1rem' }}
+            fontWeight={'bold'}
+            letterSpacing={'wider'}
+          >
+            No suggested users
+          </Text>
         ) : (
           suggestedUnFollowedUsers.map((user) => (
             <FollowerCard user={user} key={user._id} />

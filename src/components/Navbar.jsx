@@ -31,7 +31,7 @@ const Navbar = () => {
       top='-.1rem'
       left='0'
       h={{ base: '4.5rem', md: '5rem' }}
-      zIndex={11}
+      zIndex={14}
       bg={colorMode === 'light' ? '#fff' : 'gray.800'}
     >
       <Container

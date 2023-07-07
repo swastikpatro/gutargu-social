@@ -24,7 +24,7 @@ import {
 import {
   sortByCreatedDate,
   sortByLikeCount,
-  getUpdatedPostsWithMainUserDetails,
+  getUpdatedWithMainUserDetails,
 } from '../utils/utils';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -91,9 +91,10 @@ const HomePage = () => {
   );
 
   // posts of mainUser is updated
-  const postsOfUserAndFollowingUpdated = getUpdatedPostsWithMainUserDetails({
+  const postsOfUserAndFollowingUpdated = getUpdatedWithMainUserDetails({
     posts: postsOfMainUserAndFollowing,
     mainUserDetails,
+    propName: 'author',
   });
 
   const sortedPosts = [...postsOfUserAndFollowingUpdated].sort(

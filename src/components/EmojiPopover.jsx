@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { FaSmile } from 'react-icons/fa';
+import { FaRegSmile } from 'react-icons/fa';
 
 import EmojiPicker from 'emoji-picker-react';
 
@@ -26,7 +26,7 @@ const EmojiPopover = ({ onEmojiClick }) => {
           bg='transparent'
           _hover={{ bg: 'transparent' }}
         >
-          <Icon as={FaSmile} />
+          <Icon as={FaRegSmile} />
         </IconButton>
       </PopoverTrigger>
 
@@ -35,7 +35,10 @@ const EmojiPopover = ({ onEmojiClick }) => {
         <PopoverCloseButton />
         {isOpen && (
           <EmojiPicker
-            onEmojiClick={({ emoji }) => onEmojiClick(emoji)}
+            onEmojiClick={({ emoji }) => {
+              onEmojiClick(emoji);
+              onClose();
+            }}
             theme={colorModeValue}
             emojiStyle='native'
             emojiVersion='1.0'

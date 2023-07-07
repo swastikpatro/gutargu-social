@@ -7,7 +7,7 @@ import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { pollingInterval } from '../constants';
-import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
+import { getUpdatedWithMainUserDetails } from '../utils/utils';
 
 const LikedPostsPage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -36,9 +36,10 @@ const LikedPostsPage = () => {
     ({ isLikedByMainUser }) => isLikedByMainUser
   );
 
-  const likedPostsWithUpdatedDetails = getUpdatedPostsWithMainUserDetails({
+  const likedPostsWithUpdatedDetails = getUpdatedWithMainUserDetails({
     posts: likedPostsByMainUser,
     mainUserDetails,
+    propName: 'author',
   });
 
   if (likedPostsByMainUser.length < 1) {

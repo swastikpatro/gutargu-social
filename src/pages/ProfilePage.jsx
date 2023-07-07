@@ -15,11 +15,9 @@ import {
 } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
 import { pollingInterval } from '../constants';
-import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
+import { getUpdatedWithMainUserDetails } from '../utils/utils';
 
 const ProfilePage = () => {
-  const headingText = 'User Profile Page';
-
   const { profileId: profileIdFromParam } = useParams();
   const mainUserId = useSelector((store) => store.auth.mainUserId);
 
@@ -44,10 +42,15 @@ const ProfilePage = () => {
     isFetching: isUserDetailsFetching,
   } = useGetSingleUserDetailsQuery({ mainUserId, id: profileIdFromParam });
 
-  const userPostsWithUpdatedDetails = getUpdatedPostsWithMainUserDetails({
+  const userPostsWithUpdatedDetails = getUpdatedWithMainUserDetails({
     posts: allUserPosts,
     mainUserDetails,
+    propName: 'author',
   });
+
+  const headingText = `${
+    profileIdFromParam === mainUserId ? '' : 'User '
+  }Profile Page`;
 
   const exploreLinkJSX = (
     <Center>
@@ -123,7 +126,10 @@ const ProfilePage = () => {
 
   return (
     <PostsContainer headingText={headingText}>
-      <ProfileCard singleUserDetails={singleUserDetails} />
+      <ProfileCard
+        singleUserDetails={singleUserDetails}
+        isUserDetailsFetching={isUserDetailsFetching}
+      />
 
       <Box
         as='section'

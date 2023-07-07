@@ -114,7 +114,7 @@ export const api = createApi({
       },
       // mainUserId and id are args to the query
       providesTags: (results, error, arg) => {
-        return [{ type: 'Post', id: results._id }];
+        return [{ type: 'Post', id: arg.id }];
       },
     }),
 
@@ -476,6 +476,174 @@ export const api = createApi({
         { type: 'User', id: body.mainUserId },
       ],
     }),
+
+    addComment: builder.mutation({
+      query: ({ postId, comment }) => ({
+        url: `/post/comment/${postId}`,
+        method: 'POST',
+        body: {
+          comment,
+        },
+      }),
+
+      invalidatesTags: (result, error, arg) => [
+        { type: 'Post', id: arg.postId },
+        { type: 'Post', id: 'LIST' },
+      ],
+    }),
+
+    editComment: builder.mutation({
+      query: ({ postId, commentInfo }) => ({
+        url: `/post/comment/${postId}`,
+        method: 'PATCH',
+        body: {
+          ...commentInfo,
+        },
+      }),
+      // commentInfo : {
+      //   commentId,
+      //   comment
+      // }
+
+      async onQueryStarted(
+        { commentInfo, mainUserId, postId, postAuthorId },
+        { dispatch, queryFulfilled }
+      ) {
+        const updatePostWithComment = ({ listOfPosts }) => {
+          const postToUpdateOptimistic = listOfPosts.find(
+            (post) => post._id === postId
+          );
+
+          const commentInThatPost = postToUpdateOptimistic?.comments.find(
+            (comment) => comment._id === commentInfo.commentId
+          );
+          if (postToUpdateOptimistic && commentInThatPost) {
+            commentInThatPost.comment = commentInfo.comment;
+          }
+        };
+
+        const editCommentForAllPosts = dispatch(
+          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+            updatePostWithComment({ listOfPosts: draft })
+          )
+        );
+
+        const editCommentForAllPostsOfAUser = dispatch(
+          api.util.updateQueryData(
+            'getAllPostsOfAUser',
+            { id: postAuthorId, mainUserId },
+            (draft) => ({ listOfPosts: draft })
+          )
+        );
+
+        const editCommentForSinglePost = dispatch(
+          api.util.updateQueryData(
+            'getSinglePost',
+            { id: postId, mainUserId },
+            (draft) => {
+              const commentToEdit = draft.comments.find(
+                (comment) => comment._id === commentInfo.commentId
+              );
+
+              if (commentToEdit) {
+                commentToEdit.comment = commentInfo.comment;
+              }
+            }
+          )
+        );
+
+        const editCommentForBookmarkPosts = dispatch(
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+            updatePostWithComment({ listOfPosts: draft })
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          editCommentForAllPosts.undo();
+          editCommentForAllPostsOfAUser.undo();
+          editCommentForSinglePost.undo();
+          editCommentForBookmarkPosts.undo();
+        }
+      },
+    }),
+
+    deleteComment: builder.mutation({
+      query: ({ postId, commentId }) => ({
+        url: '/post/comment/delete-comment',
+        method: 'POST',
+        body: {
+          postId,
+          commentId,
+        },
+      }),
+
+      async onQueryStarted(
+        { commentId, mainUserId, postId, postAuthorId },
+        { dispatch, queryFulfilled }
+      ) {
+        const updatePostWithComment = ({ listOfPosts }) => {
+          const postToUpdateOptimistic = listOfPosts.find(
+            (post) => post._id === postId
+          );
+
+          const commentIndexInThatPost =
+            postToUpdateOptimistic?.comments.findIndex(
+              (comment) => comment._id === commentId
+            );
+
+          if (postToUpdateOptimistic && commentIndexInThatPost !== -1) {
+            postToUpdateOptimistic.comments.splice(commentIndexInThatPost, 1);
+          }
+        };
+
+        const deleteCommentForAllPosts = dispatch(
+          api.util.updateQueryData('getAllPosts', mainUserId, (draft) =>
+            updatePostWithComment({ listOfPosts: draft })
+          )
+        );
+
+        const deleteCommentForAllPostsOfAUser = dispatch(
+          api.util.updateQueryData(
+            'getAllPostsOfAUser',
+            { id: postAuthorId, mainUserId },
+            (draft) => ({ listOfPosts: draft })
+          )
+        );
+
+        const deleteCommentForSinglePost = dispatch(
+          api.util.updateQueryData(
+            'getSinglePost',
+            { id: postId, mainUserId },
+            (draft) => {
+              const indexOfCommentToDelete = draft.comments.findIndex(
+                (comment) => comment._id === commentId
+              );
+
+              if (indexOfCommentToDelete !== -1) {
+                draft.comments.splice(indexOfCommentToDelete, 1);
+              }
+            }
+          )
+        );
+
+        const deleteCommentForBookmarkPosts = dispatch(
+          api.util.updateQueryData('getBookmarkPosts', mainUserId, (draft) =>
+            updatePostWithComment({ listOfPosts: draft })
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          deleteCommentForAllPosts.undo();
+          deleteCommentForAllPostsOfAUser.undo();
+          deleteCommentForSinglePost.undo();
+          deleteCommentForBookmarkPosts.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -496,4 +664,7 @@ export const {
   useFollowUserMutation,
   useUnfollowUserMutation,
   useUpdateUserMutation,
+  useAddCommentMutation,
+  useEditCommentMutation,
+  useDeleteCommentMutation,
 } = api;

@@ -117,21 +117,26 @@ export const hasEqualProperties = ({ stateData, dataObj }) => {
   });
 };
 
-export const getUpdatedPostsWithMainUserDetails = ({
+// works for both posts and comments
+export const getUpdatedWithMainUserDetails = ({
   posts = [],
   mainUserDetails,
+  propName,
 }) => {
-  return posts.map((singlePost) => {
-    if (singlePost.author._id === mainUserDetails?._id) {
+  return posts.map((singleItem) => {
+    if (singleItem[propName]._id === mainUserDetails?._id) {
       return {
-        ...singlePost,
-        author: Object.keys(singlePost.author).reduce((acc, currentKey) => {
-          acc[currentKey] = mainUserDetails[currentKey];
-          return acc;
-        }, {}),
+        ...singleItem,
+        [propName]: Object.keys(singleItem[propName]).reduce(
+          (acc, currentKey) => {
+            acc[currentKey] = mainUserDetails[currentKey];
+            return acc;
+          },
+          {}
+        ),
       };
     } else {
-      return singlePost;
+      return singleItem;
     }
   });
 };

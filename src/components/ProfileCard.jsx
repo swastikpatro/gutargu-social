@@ -38,7 +38,7 @@ import EditProfileModal from './EditProfileModal';
 import { useFollowUserMutation, useUnfollowUserMutation } from '../store/api';
 import { removeUserCredentials, updateLogOutStatus } from '../store/authSlice';
 
-const ProfileCard = ({ singleUserDetails }) => {
+const ProfileCard = ({ singleUserDetails, isUserDetailsFetching }) => {
   const followButtonStyle = {
     bg: useColorModeValue('#222', '#fff'),
     color: useColorModeValue('#fff', '#222'),
@@ -190,6 +190,7 @@ const ProfileCard = ({ singleUserDetails }) => {
         onClick={onEditProfileModalOpen}
         sx={followButtonStyle}
         borderRadius={'50%'}
+        isDisabled={isUserDetailsFetching}
       >
         <Icon fontSize={'1.25rem'} as={FaEdit} />
       </IconButton>
