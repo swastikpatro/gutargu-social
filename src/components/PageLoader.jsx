@@ -11,7 +11,7 @@ const PageLoader = () => {
       alignItems='center'
       justifyContent='center'
       backgroundColor='rgba(0, 0, 0, 0.5)'
-      zIndex={12}
+      zIndex={15}
     >
       <Box>
         <Spinner size='xl' color='#fff' />

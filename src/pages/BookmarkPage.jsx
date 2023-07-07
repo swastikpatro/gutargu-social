@@ -7,7 +7,7 @@ import {
 import { PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getUpdatedPostsWithMainUserDetails } from '../utils/utils';
+import { getUpdatedWithMainUserDetails } from '../utils/utils';
 
 const BookmarkPage = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -18,9 +18,10 @@ const BookmarkPage = () => {
   const { data: mainUserDetails, isLoading: isMainUserLoading } =
     useGetMainUserDetailsQuery({ mainUserId, id: mainUserId });
 
-  const bookmarkPostsWithUpdatedUser = getUpdatedPostsWithMainUserDetails({
+  const bookmarkPostsWithUpdatedUser = getUpdatedWithMainUserDetails({
     posts: allBookmarkPosts,
     mainUserDetails,
+    propName: 'author',
   });
   const headingText = 'Bookmarks';
 
