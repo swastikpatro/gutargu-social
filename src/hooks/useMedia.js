@@ -6,7 +6,8 @@ const useMedia = () => {
   const [isMediaUploading, setIsMediaUploading] = useState(false);
 
   const uploadMedia = async ({ media, updateMedia, toast }) => {
-    const mediaType = media.type.split('/')[0];
+    const validFileTypes = ['jpeg', 'png', 'jpg', 'mp4'];
+    const [mediaType, fileType] = media.type.split('/');
     if (mediaType === 'video' && Math.round(media.size / 1024000) > 10) {
       showToast({
         toast,
@@ -21,6 +22,15 @@ const useMedia = () => {
         toast,
         type: TOAST_TYPE.Error,
         message: 'Image size should be less than 4MB',
+      });
+      return;
+    }
+
+    if (!validFileTypes.find((single) => single === fileType)) {
+      showToast({
+        toast,
+        type: TOAST_TYPE.Error,
+        message: 'Media not supported',
       });
       return;
     }

@@ -250,7 +250,9 @@ const PostModal = ({
               {/* image input */}
               <FormControl w='fit-content'>
                 <IconButton
-                  onClick={() => fileInputRef.current.click()}
+                  onClick={() => {
+                    fileInputRef.current.click();
+                  }}
                   fontSize={'1rem'}
                   bg='transparent'
                   _hover={{ bg: 'transparent' }}
