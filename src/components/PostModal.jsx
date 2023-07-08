@@ -92,6 +92,8 @@ const PostModal = ({
       updateMedia: handleImageUrl,
       toast,
     });
+
+    e.target.value = null;
   };
 
   const handleSubmit = async (e) => {

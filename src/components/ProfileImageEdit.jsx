@@ -62,6 +62,8 @@ const ProfileImageEdit = ({ handlePicChange, activePic, fullName }) => {
       updateMedia: handlePicChange,
       toast,
     });
+
+    e.target.value = null;
   };
 
   const userAvatarEditJSX = (
