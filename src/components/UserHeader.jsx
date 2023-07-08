@@ -1,9 +1,17 @@
-import { Avatar, Box, Text, Flex } from '@chakra-ui/react';
+import { Avatar, Box, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 
 const UserHeader = ({ user }) => {
   const { firstName, lastName, username, pic } = user;
   return (
-    <Flex gap={'.5rem'} alignItems={'center'}>
+    <ChakraLink
+      as={Link}
+      to={`/profile/${user._id}`}
+      _hover={{ textDecoration: 'none' }}
+      display={'flex'}
+      gap={'.5rem'}
+      alignItems={'center'}
+    >
       <Avatar
         size={{ base: 'sm', md: 'md' }}
         name={`${firstName} ${lastName}`}
@@ -22,7 +30,7 @@ const UserHeader = ({ user }) => {
           @{username}
         </Text>
       </Box>
-    </Flex>
+    </ChakraLink>
   );
 };
 

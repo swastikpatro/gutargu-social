@@ -315,6 +315,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
 
       <CardFooter
         py={{ base: '.5rem' }}
+        px='0.35rem'
         as='footer'
         display='flex'
         alignItems='center'

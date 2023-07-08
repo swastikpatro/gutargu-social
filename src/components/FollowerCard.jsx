@@ -57,13 +57,7 @@ const FollowerCard = ({ user }) => {
       alignItems='center'
       mb={'1rem'}
     >
-      <ChakraLink
-        as={Link}
-        to={`/profile/${user._id}`}
-        _hover={{ textDecoration: 'none' }}
-      >
-        <UserHeader user={user} />
-      </ChakraLink>
+      <UserHeader user={user} />
 
       <Spacer />
 

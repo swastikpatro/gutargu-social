@@ -30,10 +30,9 @@ const EmojiPopover = ({ onEmojiClick }) => {
         </IconButton>
       </PopoverTrigger>
 
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverCloseButton />
-        {isOpen && (
+      {isOpen && (
+        <PopoverContent w='90vw' maxW='300px'>
+          <PopoverArrow />
           <EmojiPicker
             onEmojiClick={({ emoji }) => {
               onEmojiClick(emoji);
@@ -49,10 +48,11 @@ const EmojiPopover = ({ onEmojiClick }) => {
             previewConfig={{
               showPreview: false,
             }}
+            width={'100%'}
             height='240px'
           />
-        )}
-      </PopoverContent>
+        </PopoverContent>
+      )}
     </Popover>
   );
 };

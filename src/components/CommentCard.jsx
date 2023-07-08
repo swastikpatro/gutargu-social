@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardBody,
   CardHeader,
@@ -66,16 +67,19 @@ const CommentCard = ({ commentData, updateActiveCommentId, postAuthorId }) => {
   return (
     <Card p='.5rem .75rem' boxShadow={'md'}>
       <CardHeader display={'flex'} gap='.5rem' p='0'>
-        <UserHeader user={user} />
-        <Text
-          mt='.25rem'
-          fontSize={{ base: '.7rem', md: '.8rem' }}
-          letterSpacing='wider'
-          color={'gray'}
-          fontWeight={'semibold'}
-        >
-          {getCreatedDate(createdAt)}
-        </Text>
+        <Box display={'flex'} flexWrap={'wrap'} gap='0 .5rem'>
+          <UserHeader user={user} />
+          <Text
+            m='auto'
+            mt='.25rem'
+            fontSize={{ base: '.7rem', md: '.8rem' }}
+            letterSpacing='wider'
+            color={'gray'}
+            fontWeight={'semibold'}
+          >
+            {getCreatedDate(createdAt)}
+          </Text>
+        </Box>
 
         <Spacer />
 
@@ -123,7 +127,12 @@ const CommentCard = ({ commentData, updateActiveCommentId, postAuthorId }) => {
       </CardHeader>
 
       <CardBody p='0' my={'.75rem'}>
-        <Text letterSpacing={{ base: 'wide', md: 'widest' }}>{comment}</Text>
+        <Text
+          fontSize={{ base: '.85rem', md: '1rem' }}
+          letterSpacing={{ base: 'wider', md: 'widest' }}
+        >
+          {comment}
+        </Text>
       </CardBody>
     </Card>
   );

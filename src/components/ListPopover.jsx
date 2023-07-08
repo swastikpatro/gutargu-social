@@ -47,15 +47,8 @@ const ListPopover = ({ usersList, type }) => {
           >
             {usersList.length > 0 ? (
               usersList.map((user) => (
-                <Box as='article' key={user._id} mb={'1rem'}>
-                  <ChakraLink
-                    as={Link}
-                    to={`/profile/${user._id}`}
-                    _hover={{ textDecoration: 'none' }}
-                    onClick={onClose}
-                  >
-                    <UserHeader user={user} />
-                  </ChakraLink>
+                <Box as='article' key={user._id} mb={'1rem'} onClick={onClose}>
+                  <UserHeader user={user} />
                 </Box>
               ))
             ) : (

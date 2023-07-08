@@ -82,20 +82,17 @@ const SearchBar = () => {
       <Box maxH='10rem' h='fit-content' overflow={'auto'}>
         {filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
-            <ChakraLink
+            <Box
               key={user._id}
-              as={Link}
-              to={`/profile/${user._id}`}
-              _hover={{ textDecoration: 'none' }}
+              as='article'
+              mb='1rem'
               onClick={() => {
                 onClose();
                 setSearchText('');
               }}
             >
-              <Box as='article' mb='1rem'>
-                <UserHeader user={user} />
-              </Box>
-            </ChakraLink>
+              <UserHeader user={user} />
+            </Box>
           ))
         ) : (
           <Center>

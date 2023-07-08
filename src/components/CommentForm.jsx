@@ -141,7 +141,7 @@ const CommentForm = ({
   };
 
   return (
-    <Card as='form' p='.5rem .75rem' boxShadow={'md'}>
+    <Card as='form' p='.5rem .75rem' boxShadow={'md'} m='0'>
       <CardHeader p='0' mb='.5rem'>
         <UserHeader
           user={isAddingAndMainUserInfo || isEditingAndCommentData.user}
@@ -151,6 +151,7 @@ const CommentForm = ({
       <CardBody p='0' mb='.5rem'>
         <FormControl>
           <Textarea
+            fontSize={{ base: '.85rem', md: '1rem' }}
             value={comment}
             placeholder='Reply'
             onChange={(e) => setComment(e.target.value)}
@@ -165,20 +166,38 @@ const CommentForm = ({
         </FormControl>
       </CardBody>
 
-      <CardFooter p='0' display={'flex'} alignItems={'center'} gap='0 .5rem'>
-        <EmojiPopover
-          onEmojiClick={(emoji) => setComment(`${comment}${emoji}`)}
-        />
+      <CardFooter
+        p='0'
+        py='.25rem'
+        display={'flex'}
+        alignItems={'center'}
+        gap='0 .5rem'
+        flexWrap={{ base: 'wrap', md: 'nowrap' }}
+      >
+        <Box
+          display={'flex'}
+          alignItems={'center'}
+          justifyContent={{ base: 'space-between' }}
+          gap='0 .5rem'
+          w={{ base: 'full', md: 'fit-content' }}
+        >
+          <EmojiPopover
+            onEmojiClick={(emoji) => setComment(`${comment}${emoji}`)}
+          />
 
-        <Text letterSpacing={'wide'}>
-          <Box
-            as={'span'}
-            color={isCommentContentOverLimit ? 'red.400' : 'inherit'}
+          <Text
+            letterSpacing={'wide'}
+            fontSize={{ base: '.85rem', md: '1rem' }}
           >
-            {comment.length}
-          </Box>{' '}
-          / {LIMIT.CONTENT_LIMIT}
-        </Text>
+            <Box
+              as={'span'}
+              color={isCommentContentOverLimit ? 'red.400' : 'inherit'}
+            >
+              {comment.length}
+            </Box>{' '}
+            / {LIMIT.CONTENT_LIMIT}
+          </Text>
+        </Box>
 
         <Spacer />
 
@@ -186,7 +205,7 @@ const CommentForm = ({
           <Button
             colorScheme='blue'
             borderRadius={'full'}
-            px='1.2rem'
+            px={{ base: '1rem', md: '1.2rem' }}
             onClick={handleAddComment}
             isLoading={isCommentAdding}
           >
@@ -195,18 +214,24 @@ const CommentForm = ({
         )}
 
         {!!isEditingAndCommentData && (
-          <Box as='div' display={'flex'} gap='0 .5rem'>
+          <Box
+            as='div'
+            display={'flex'}
+            gap='0 .5rem'
+            justifyContent={'space-between'}
+            width={{ base: '100%', md: 'fit-content' }}
+          >
             <Button
+              px={{ base: '1rem', md: '1.2rem' }}
               onClick={clearActiveCommentId}
               borderRadius={'full'}
-              px='1.2rem'
             >
               Cancel
             </Button>{' '}
             <Button
+              px={{ base: '1rem', md: '1.2rem' }}
               onClick={handleEditComment}
               borderRadius={'full'}
-              px='1.2rem'
               colorScheme='blue'
             >
               Save
