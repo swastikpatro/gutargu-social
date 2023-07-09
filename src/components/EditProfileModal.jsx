@@ -35,7 +35,7 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
     lastName,
     pic,
     bio,
-    link,
+    link: !link ? 'https://' : link,
   };
 
   const [userInfoInputs, setUserInfoInputs] = useState(initialState);
@@ -166,8 +166,9 @@ const EditProfileModal = ({ isOpen, onClose, mainUserInfo }) => {
               <FormLabel>Link</FormLabel>
               <Input
                 autoComplete='off'
-                type='text'
+                type='url'
                 name='link'
+                pattern='https://.*'
                 onChange={handleUserInputChange}
                 placeholder='Website link'
                 value={userInfoInputs.link}

@@ -9,12 +9,12 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { sectionCenterStyles } from '../styles/GlobalStyles';
-import logo from '../assets/logo.svg';
 import SearchBar from './SearchBar';
 import { FaMoon } from 'react-icons/fa';
 import { BsFillSunFill } from 'react-icons/bs';
 
 import { Link, useLocation } from 'react-router-dom';
+import { logo } from '../constants';
 
 const Navbar = () => {
   const { colorMode, toggleColorMode } = useColorMode();

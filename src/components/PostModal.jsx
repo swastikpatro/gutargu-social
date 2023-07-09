@@ -52,6 +52,11 @@ const PostModal = ({
     : isEditingAndMainUserData.author;
 
   const postIdToUpdate = isEditingAndMainUserData?._id;
+  const limitAsPerVerifiedStatus =
+    isAddingAndMainUserData?.verified ||
+    isEditingAndMainUserData?.author?.verified
+      ? LIMIT.VERIFIED_CONTENT_LIMIT
+      : LIMIT.CONTENT_LIMIT;
 
   const [inputs, setInputs] = useState(
     isEditingAndMainUserData
@@ -74,7 +79,7 @@ const PostModal = ({
     });
   }
 
-  const isContentOverLimit = inputs.content.length > LIMIT.CONTENT_LIMIT;
+  const isContentOverLimit = inputs.content.length > limitAsPerVerifiedStatus;
 
   const handleContent = (e) =>
     setInputs({ ...inputs, content: e.target.value });
@@ -284,7 +289,7 @@ const PostModal = ({
                 >
                   {inputs.content.length}
                 </Box>{' '}
-                / {LIMIT.CONTENT_LIMIT}
+                / {limitAsPerVerifiedStatus}
               </Text>
 
               <Button

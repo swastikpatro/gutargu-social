@@ -1,3 +1,4 @@
+import confetti from 'canvas-confetti';
 import { TOAST_TYPE, URL } from '../constants';
 
 export const wait = (delay = 500) =>
@@ -142,3 +143,30 @@ export const getUpdatedWithMainUserDetails = ({
 };
 
 export const getFollowCacheKey = (userId) => `follow-user-${userId}`;
+
+export const Popper = () => {
+  const end = Date.now() + 1 * 1000;
+  // go Buckeyes!
+  const colors = ['#392f5a', '#9583cf'];
+
+  (function frame() {
+    confetti({
+      particleCount: 2,
+      angle: 40,
+      spread: 55,
+      origin: { x: 0 },
+      colors: colors,
+    });
+    confetti({
+      particleCount: 2,
+      angle: 140,
+      spread: 55,
+      origin: { x: 1 },
+      colors: colors,
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+};

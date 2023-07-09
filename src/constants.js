@@ -32,6 +32,7 @@ export const MODAL_TEXT_TYPE = {
 
 export const LIMIT = {
   CONTENT_LIMIT: 240,
+  VERIFIED_CONTENT_LIMIT: 480,
 };
 
 export const pollingInterval = 12000;
@@ -45,4 +46,14 @@ export const avatarsList = [
   'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688479271/Gutargu-social/avatar-3_dskusz.png',
   'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688479243/Gutargu-social/avatar-2_bf6bl5.png',
   'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688479190/Gutargu-social/avatar-1_r5cm82.png',
+];
+
+export const verificationAmountRs = 1000;
+
+export const logo =
+  'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688932371/hummingbird_1_bij3d3.png';
+
+export const perksOfVerified = [
+  'Verified users enjoy the perk of posting up to 480 characters in a single post.',
+  'Additionally, user can include 480 characters of text in each comment they make.',
 ];

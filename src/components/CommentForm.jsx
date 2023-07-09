@@ -39,7 +39,12 @@ const CommentForm = ({
   const [addComment, { isLoading: isCommentAdding }] = useAddCommentMutation();
   const [editComment] = useEditCommentMutation();
 
-  const isCommentContentOverLimit = comment.length > LIMIT.CONTENT_LIMIT;
+  const limitAsPerVerifiedStatus =
+    isAddingAndMainUserInfo?.verified || isEditingAndCommentData?.user?.verified
+      ? LIMIT.VERIFIED_CONTENT_LIMIT
+      : LIMIT.CONTENT_LIMIT;
+
+  const isCommentContentOverLimit = comment.length > limitAsPerVerifiedStatus;
 
   const handleAddComment = async () => {
     if (!trimmedComment) {
@@ -195,7 +200,7 @@ const CommentForm = ({
             >
               {comment.length}
             </Box>{' '}
-            / {LIMIT.CONTENT_LIMIT}
+            / {limitAsPerVerifiedStatus}
           </Text>
         </Box>
 
