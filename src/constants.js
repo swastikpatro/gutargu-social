@@ -15,8 +15,8 @@ export const LOGIN_CLICK_TYPE = {
 };
 
 export const TEST_USER = {
-  email: 'swastik.patro2001@gmail.com',
-  password: 'patro@2001',
+  email: 'atithi.bhagwan@gmail.com',
+  password: 'atithi@101',
 };
 
 export const URL = 'https://gutargu-backend.vercel.app/api';
@@ -51,7 +51,7 @@ export const avatarsList = [
 export const verificationAmountRs = 1000;
 
 export const logo =
-  'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688932371/hummingbird_1_bij3d3.png';
+  'https://res.cloudinary.com/dtbd1y4en/image/upload/v1688973089/bird_2_qaulh2.png';
 
 export const perksOfVerified = [
   'Verified users enjoy the perk of posting up to 480 characters in a single post.',
