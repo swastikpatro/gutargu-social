@@ -41,8 +41,9 @@ const SharedLayout = () => {
       >
         <Box
           pos={{ base: 'fixed', md: 'sticky' }}
-          top={{ base: 'calc(100dvh - 3.9rem)', md: '6rem' }}
+          top={{ md: '6rem' }}
           left={{ base: 0 }}
+          bottom={{ base: 0 }}
           w={{ base: '100%', md: '80px', lg: '80px', xl: '250px' }}
           h={{ base: '4rem', md: 'calc(100dvh - 6rem)' }}
           // border='2px solid red'
