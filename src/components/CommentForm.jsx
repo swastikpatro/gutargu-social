@@ -186,10 +186,6 @@ const CommentForm = ({
           gap='0 .5rem'
           w={{ base: 'full', md: 'fit-content' }}
         >
-          <EmojiPopover
-            onEmojiClick={(emoji) => setComment(`${comment}${emoji}`)}
-          />
-
           <Text
             letterSpacing={'wide'}
             fontSize={{ base: '.85rem', md: '1rem' }}
