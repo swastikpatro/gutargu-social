@@ -19,13 +19,21 @@ const UserHeader = ({ user }) => {
         cursor='pointer'
       />
       <Box as='div' cursor='pointer'>
-        <Text
+        <Box
           fontWeight='semibold'
           display={'flex'}
           alignItems={'center'}
           gap={'.15rem'}
         >
-          {firstName} {lastName}{' '}
+          <Text
+            textOverflow={'ellipsis'}
+            width='6.2rem'
+            overflow={'hidden'}
+            whiteSpace={'nowrap'}
+          >
+            {firstName} {lastName}{' '}
+          </Text>
+
           {verified && (
             <Box as='span'>
               <Box
@@ -44,11 +52,15 @@ const UserHeader = ({ user }) => {
               </Box>
             </Box>
           )}
-        </Text>
+        </Box>
         <Text
           fontSize={{ base: '.75rem', md: '.9rem' }}
           letterSpacing='widest'
           fontStyle={'italic'}
+          textOverflow={'ellipsis'}
+          width='6rem'
+          overflow={'hidden'}
+          whiteSpace={'nowrap'}
         >
           @{username}
         </Text>

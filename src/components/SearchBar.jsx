@@ -20,6 +20,7 @@ import { DEBOUNCED_DELAY, pollingInterval } from '../constants';
 import { filterOnFirstLastAndUserName } from '../utils/utils';
 import UserHeader from './UserHeader';
 import { useSelector } from 'react-redux';
+import { useBlur } from '../hooks';
 
 const SearchBar = () => {
   const mainUserId = useSelector((store) => store.auth.mainUserId);
@@ -33,6 +34,7 @@ const SearchBar = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchRef = useRef(null);
+  useBlur({ searchRef, onClose });
 
   const { data: allUsers, isLoading: isUsersLoading } = useGetAllUsersQuery(
     mainUserId,
@@ -128,7 +130,6 @@ const SearchBar = () => {
               value={searchText}
               boxShadow='base'
               autoComplete='off'
-              onBlur={onClose}
               onFocus={onOpen}
               onChange={handleSearchChange}
               bg={useColorModeValue('#fff', 'gray.700')}
