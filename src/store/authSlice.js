@@ -1,11 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import {
+  localStorageGetItemWithExpiry,
+  localStorageSetItemWithExpiry,
+} from '../utils/utils';
 
 const initialState = {
-  token: localStorage.getItem(LOCAL_STORAGE_KEYS.Token),
-  mainUserId: localStorage.getItem(LOCAL_STORAGE_KEYS.Token)
-    ? jwt_decode(localStorage.getItem(LOCAL_STORAGE_KEYS.Token))._id
+  token: localStorageGetItemWithExpiry(LOCAL_STORAGE_KEYS.Token),
+  mainUserId: localStorageGetItemWithExpiry(LOCAL_STORAGE_KEYS.Token)
+    ? jwt_decode(localStorageGetItemWithExpiry(LOCAL_STORAGE_KEYS.Token))._id
     : null,
   isLoggedOut: false,
 };
@@ -15,6 +19,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     addUserCredentials: (state, action) => {
+      localStorageSetItemWithExpiry(LOCAL_STORAGE_KEYS.Token, action.payload);
       state.token = action.payload;
       state.mainUserId = jwt_decode(action.payload)._id;
     },

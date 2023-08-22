@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti';
-import { TOAST_TYPE, URL } from '../constants';
+import { TOAST_TYPE, URL, tokenActiveDurationInHrs } from '../constants';
 
 export const wait = (delay = 500) =>
   new Promise((res) => setTimeout(res, delay));
@@ -169,4 +169,35 @@ export const Popper = () => {
       requestAnimationFrame(frame);
     }
   })();
+};
+
+const convertHrToMs = (hours) => hours * 60 * 60 * 1000;
+
+const convertMsToHR = (ms) => ms / (1000 * 60 * 60);
+
+export const localStorageSetItemWithExpiry = (key, token) => {
+  localStorage.setItem(
+    key,
+    JSON.stringify({
+      expiryTime:
+        new Date().getTime() + convertHrToMs(tokenActiveDurationInHrs),
+      token,
+    })
+  );
+};
+
+export const localStorageGetItemWithExpiry = (key) => {
+  let tokenFromStorage;
+  try {
+    const dataInStorage = JSON.parse(localStorage.getItem(key)); // gives error if string is stored in key, for users who has wrong form of token (without expirytime) stored in local storage
+
+    const isExpired =
+      convertMsToHR(dataInStorage.expiryTime - new Date().getTime()) <= 0;
+
+    tokenFromStorage = isExpired ? '' : dataInStorage.token;
+  } catch (error) {
+    localStorage.removeItem(key);
+    tokenFromStorage = '';
+  }
+  return tokenFromStorage;
 };

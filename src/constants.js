@@ -9,6 +9,8 @@ export const LOCAL_STORAGE_KEYS = {
   Token: 'token-social',
 };
 
+export const tokenActiveDurationInHrs = 72;
+
 export const LOGIN_CLICK_TYPE = {
   GuestClick: 'GUEST',
   RegisterClick: 'REGISTER',
