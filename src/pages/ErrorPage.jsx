@@ -6,6 +6,7 @@ const ErrorPage = () => {
     <Box as='section' height='100vh' display='grid' placeItems='center'>
       <Box h='10rem'>
         <Image
+          loading='lazy'
           h='100%'
           w='100%'
           src={

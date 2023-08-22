@@ -414,6 +414,20 @@ const ProfileCard = ({ singleUserDetails, isUserDetailsFetching }) => {
             Get Verified
           </Button>
         )}
+
+        {/* only on local */}
+        {singleUserDetails._id === mainUserId && verified && (
+          <Button
+            onClick={async () => {
+              await updateUser({
+                mainUserId,
+                verified: false,
+              }).unwrap();
+            }}
+          >
+            Click
+          </Button>
+        )}
       </Box>
     </Box>
   );

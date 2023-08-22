@@ -7,6 +7,7 @@ import {
   Icon,
   Text,
   Flex,
+  Image,
 } from '@chakra-ui/react';
 import { sectionCenterStyles } from '../styles/GlobalStyles';
 import SearchBar from './SearchBar';
@@ -53,7 +54,7 @@ const Navbar = () => {
           }}
           {...(isInAuthPage && { m: 'auto' })}
         >
-          <Box as='img' src={logo} h={{ base: '3rem', md: '4rem' }} />
+          <Image src={logo} alt='logo' h={{ base: '3rem', md: '4rem' }} />
 
           <Text
             {...(!isInAuthPage && { hideBelow: 'xl' })}

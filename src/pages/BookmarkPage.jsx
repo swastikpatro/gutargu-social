@@ -1,10 +1,10 @@
-import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Center, Text, Link as ChakraLink } from '@chakra-ui/react';
 import {
   useGetBookmarkPostsQuery,
   useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
 
-import { PostCard, PostsContainer } from '../components';
+import { Loader, PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getUpdatedWithMainUserDetails } from '../utils/utils';
@@ -28,9 +28,7 @@ const BookmarkPage = () => {
   if (isBookmarkedPostsLoading || isMainUserLoading) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
+        <Loader />
       </PostsContainer>
     );
   }

@@ -17,12 +17,7 @@ import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 import { addUserCredentials } from '../store/authSlice';
-import {
-  LOCAL_STORAGE_KEYS,
-  LOGIN_CLICK_TYPE,
-  TEST_USER,
-  TOAST_TYPE,
-} from '../constants';
+import { LOGIN_CLICK_TYPE, TEST_USER, TOAST_TYPE } from '../constants';
 import { loginService, showToast } from '../utils/utils';
 import { useNavigateIfRegistered } from '../hooks';
 import PageLoader from './PageLoader';
@@ -78,9 +73,6 @@ const LoginCard = () => {
 
       // update userSlice with data
       dispatch(addUserCredentials(token));
-
-      // store this data in localStorage
-      localStorage.setItem(LOCAL_STORAGE_KEYS.Token, token);
 
       // show success toast
       showToast({

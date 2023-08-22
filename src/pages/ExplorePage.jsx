@@ -1,5 +1,4 @@
-import { Center, Spinner } from '@chakra-ui/react';
-import { PostCard, PostsContainer } from '../components';
+import { Loader, PostCard, PostsContainer } from '../components';
 import {
   useGetAllPostsQuery,
   useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
@@ -37,9 +36,7 @@ const ExplorePage = () => {
   if (isAllPostsLoading || isMainUserLoading) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
+        <Loader />
       </PostsContainer>
     );
   }

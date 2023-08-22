@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
   Spinner,
   Text,
-  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
@@ -120,6 +119,7 @@ const GifPopover = ({ onGifClick }) => {
               cursor={'pointer'}
             >
               <Image
+                loading='lazy'
                 w='full'
                 h='full'
                 objectFit={'contain'}

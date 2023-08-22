@@ -7,12 +7,11 @@ import {
   Heading,
   Icon,
   Spacer,
-  Spinner,
   Text,
   useDisclosure,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { PostCard, PostModal, PostsContainer } from '../components';
+import { Loader, PostCard, PostModal, PostsContainer } from '../components';
 import { MdAddCircle } from 'react-icons/md';
 import { useState } from 'react';
 import { FaFire } from 'react-icons/fa';
@@ -78,9 +77,7 @@ const HomePage = () => {
   if (isAllPostsLoading || isMainUserLoading) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
+        <Loader />
       </PostsContainer>
     );
   }

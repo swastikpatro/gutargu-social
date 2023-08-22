@@ -1,4 +1,5 @@
 import FollowerSidebar from './FollowerSidebar';
+import Loader from './Loader';
 import LoginCard from './LoginCard';
 import Navbar from './Navbar';
 import PageLoader from './PageLoader';
@@ -28,4 +29,5 @@ export {
   ProfileLink,
   PostsContainer,
   ProfileCard,
+  Loader,
 };

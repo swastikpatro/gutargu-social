@@ -321,6 +321,7 @@ const PostCard = ({ postData, isBookmarkedByMainUser = false }) => {
           >
             {!imageUrl.includes('.mp4') ? (
               <Image
+                loading='lazy'
                 objectFit='cover'
                 w='full'
                 h='full'

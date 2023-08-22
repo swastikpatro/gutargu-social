@@ -1,9 +1,9 @@
-import { Center, Spinner, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Center, Text, Link as ChakraLink } from '@chakra-ui/react';
 import {
   useGetAllPostsQuery,
   useGetSingleUserDetailsQuery as useGetMainUserDetailsQuery,
 } from '../store/api';
-import { PostCard, PostsContainer } from '../components';
+import { Loader, PostCard, PostsContainer } from '../components';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { pollingInterval } from '../constants';
@@ -25,9 +25,7 @@ const LikedPostsPage = () => {
   if (isAllPostsLoading || isMainUserLoading) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
+        <Loader />
       </PostsContainer>
     );
   }

@@ -4,11 +4,10 @@ import {
   useGetAllPostsOfAUserQuery,
   useGetSingleUserDetailsQuery,
 } from '../store/api';
-import { PostCard, PostsContainer, ProfileCard } from '../components';
+import { Loader, PostCard, PostsContainer, ProfileCard } from '../components';
 import {
   Box,
   Center,
-  Spinner,
   Link as ChakraLink,
   Text,
   Heading,
@@ -29,7 +28,6 @@ const ProfilePage = () => {
   const {
     data: allUserPosts,
     isLoading: isPostsLoading,
-    isFetching: isPostsFetching,
     isError: isPostsError,
   } = useGetAllPostsOfAUserQuery(
     { mainUserId, id: profileIdFromParam },
@@ -97,9 +95,7 @@ const ProfilePage = () => {
   ) {
     return (
       <PostsContainer headingText={headingText}>
-        <Center>
-          <Spinner />
-        </Center>
+        <Loader />
       </PostsContainer>
     );
   }

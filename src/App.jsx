@@ -1,17 +1,24 @@
+import { SignupPage, ErrorPage, LoginPage } from './pages';
+import { Loader, ProtectedRoute } from './components';
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import {
-  BookmarkPage,
-  ErrorPage,
-  ExplorePage,
-  HomePage,
-  LikedPostsPage,
-  LoginPage,
-  ProfilePage,
-  SharedLayout,
-  SignupPage,
-  SinglePostPage,
-} from './pages';
-import { ProtectedRoute } from './components';
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
+const BookmarkPage = lazy(() => import('./pages/BookmarkPage'));
+const LikedPostsPage = lazy(() => import('./pages/LikedPostsPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const SinglePostPage = lazy(() => import('./pages/SinglePostPage'));
+const SharedLayout = lazy(() => import('./pages/SharedLayout'));
+
+const outletRoutes = [
+  { path: '/', element: <HomePage /> },
+  { path: 'explore', element: <ExplorePage /> },
+  { path: 'bookmark', element: <BookmarkPage /> },
+  { path: 'liked', element: <LikedPostsPage /> },
+  { path: '/profile/:profileId', element: <ProfilePage /> },
+  { path: '/post/:postId', element: <SinglePostPage /> },
+];
 
 const App = () => {
   return (
@@ -20,21 +27,19 @@ const App = () => {
         path='/'
         element={
           <ProtectedRoute>
-            <SharedLayout />
+            <Suspense fallback={<Loader />}>
+              <SharedLayout />
+            </Suspense>
           </ProtectedRoute>
         }
       >
-        <Route index element={<HomePage />} />
-
-        <Route path='explore' element={<ExplorePage />} />
-
-        <Route path='bookmark' element={<BookmarkPage />} />
-
-        <Route path='liked' element={<LikedPostsPage />} />
-
-        <Route path='/profile/:profileId' element={<ProfilePage />} />
-
-        <Route path='/post/:postId' element={<SinglePostPage />} />
+        {outletRoutes.map(({ path, element }) => (
+          <Route
+            key={path}
+            path={path}
+            element={<Suspense fallback={<Loader />}>{element}</Suspense>}
+          />
+        ))}
       </Route>
 
       <Route path='/login' element={<LoginPage />} />
