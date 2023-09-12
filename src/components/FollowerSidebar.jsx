@@ -4,6 +4,7 @@ import {
   Heading,
   Spinner,
   useColorModeValue,
+  Text,
 } from '@chakra-ui/react';
 
 import { useSelector } from 'react-redux';
